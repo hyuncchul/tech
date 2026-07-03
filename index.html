@@ -1542,7 +1542,7 @@
         const payload = await response.json();
         const data = payload.data || payload;
         if (Array.isArray(data.records)) state.records = data.records;
-        if (Array.isArray(data.parts)) state.parts = data.parts;
+        if (Array.isArray(data.parts)) state.parts = mergeParts(data.parts);
         persist();
         persistParts();
         renderPartDatalist();
@@ -1638,6 +1638,20 @@
 
     function normalizePartNumber(value) {
       return String(value || "").trim().toUpperCase();
+    }
+
+    function mergeParts(customParts = []) {
+      const map = new Map();
+      PN_MASTER.forEach((item) => {
+        const key = normalizePartNumber(item.partNumber);
+        if (key) map.set(key, { partNumber: item.partNumber, partNo: item.partNo || "" });
+      });
+      customParts.forEach((item) => {
+        if (!item || !item.partNumber) return;
+        const key = normalizePartNumber(item.partNumber);
+        if (key) map.set(key, { partNumber: item.partNumber, partNo: item.partNo || "" });
+      });
+      return Array.from(map.values()).sort((a, b) => a.partNumber.localeCompare(b.partNumber));
     }
 
     function findPart(partNumber) {
@@ -1758,9 +1772,9 @@
     function loadParts() {
       try {
         const parsed = JSON.parse(localStorage.getItem(PART_MASTER_KEY) || "null");
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) return mergeParts(parsed);
       } catch {}
-      return PN_MASTER.slice();
+      return mergeParts();
     }
 
     function persistParts() {
