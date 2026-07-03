@@ -1527,10 +1527,10 @@
         };
         const response = await fetch(url, {
           method: "POST",
+          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload)
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         showToast(t("cloudSaved"));
       } catch (error) {
         showToast(`${t("cloudFailed")}: ${error.message}`);
@@ -1544,18 +1544,60 @@
         const response = await fetch(url, { method: "GET" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const payload = await response.json();
-        const data = payload.data || payload;
-        if (Array.isArray(data.records)) state.records = data.records;
-        if (Array.isArray(data.parts)) state.parts = mergeParts(data.parts);
-        persist();
-        persistParts();
-        renderPartDatalist();
-        renderAll();
-        renderParts();
-        showToast(t("cloudLoaded"));
+        applyCloudData(payload);
       } catch (error) {
-        showToast(`${t("cloudFailed")}: ${error.message}`);
+        try {
+          const payload = await loadCloudJsonp(url);
+          applyCloudData(payload);
+        } catch (jsonpError) {
+          showToast(`${t("cloudFailed")}: ${jsonpError.message}`);
+        }
       }
+    }
+
+    function applyCloudData(payload) {
+      const data = payload.data || payload;
+      if (Array.isArray(data.records)) state.records = data.records;
+      if (Array.isArray(data.parts)) state.parts = mergeParts(data.parts);
+      persist();
+      persistParts();
+      renderPartDatalist();
+      renderAll();
+      renderParts();
+      showToast(t("cloudLoaded"));
+    }
+
+    function loadCloudJsonp(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `cloudLoad_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error("Apps Script callback 설정을 확인해 주세요."));
+        }, 12000);
+
+        function cleanup() {
+          clearTimeout(timer);
+          script.remove();
+          delete window[callbackName];
+        }
+
+        window[callbackName] = (payload) => {
+          cleanup();
+          resolve(payload);
+        };
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("인터넷 불러오기 연결 실패"));
+        };
+        script.src = addQueryParam(url, "callback", callbackName);
+        document.body.appendChild(script);
+      });
+    }
+
+    function addQueryParam(url, key, value) {
+      const separator = url.includes("?") ? "&" : "?";
+      return `${url}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
     }
 
     function getCloudUrl() {
