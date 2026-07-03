@@ -1518,23 +1518,56 @@
     }
 
     async function sendCloud(url) {
+      const payload = {
+        app: "injection-molding-conditions",
+        savedAt: new Date().toISOString(),
+        records: state.records,
+        parts: state.parts
+      };
+      const body = JSON.stringify(payload);
+
       try {
-        const payload = {
-          app: "injection-molding-conditions",
-          savedAt: new Date().toISOString(),
-          records: state.records,
-          parts: state.parts
-        };
-        const response = await fetch(url, {
+        await fetch(url, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
+          body
         });
         showToast(t("cloudSaved"));
       } catch (error) {
-        showToast(`${t("cloudFailed")}: ${error.message}`);
+        try {
+          submitCloudForm(url, body);
+          showToast(t("cloudSaved"));
+        } catch (formError) {
+          showToast(`${t("cloudFailed")}: ${formError.message}`);
+        }
       }
+    }
+
+    function submitCloudForm(url, payloadText) {
+      const iframeName = "cloudSaveFrame";
+      let iframe = document.querySelector(`iframe[name="${iframeName}"]`);
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = iframeName;
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = url;
+      form.target = iframeName;
+      form.style.display = "none";
+
+      const input = document.createElement("textarea");
+      input.name = "payload";
+      input.value = payloadText;
+      form.appendChild(input);
+
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
     }
 
     async function loadCloud() {
