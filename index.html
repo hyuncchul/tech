@@ -1254,6 +1254,7 @@
       form.elements.date.value = today;
       document.getElementById("cloudUrl").value = localStorage.getItem(CLOUD_URL_KEY) || "";
       applyLanguage();
+      ensureParts();
       renderPartDatalist();
       renderAll();
     }
@@ -1262,7 +1263,10 @@
       document.querySelectorAll(".tab").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
       document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${name}`));
       if (name === "records") renderRecords();
-      if (name === "parts") renderParts();
+      if (name === "parts") {
+        ensureParts();
+        renderParts();
+      }
     }
 
     function saveRecord() {
@@ -1654,7 +1658,16 @@
       return Array.from(map.values()).sort((a, b) => a.partNumber.localeCompare(b.partNumber));
     }
 
+    function ensureParts() {
+      if (!Array.isArray(state.parts) || !state.parts.length) {
+        state.parts = mergeParts();
+        persistParts();
+      }
+      return state.parts;
+    }
+
     function findPart(partNumber) {
+      ensureParts();
       const target = normalizePartNumber(partNumber);
       return state.parts.find((item) => normalizePartNumber(item.partNumber) === target);
     }
@@ -1667,12 +1680,14 @@
     }
 
     function renderPartDatalist() {
+      ensureParts();
       const list = document.getElementById("partNumberList");
       const sample = state.parts.slice(0, 1200);
       list.innerHTML = sample.map((item) => `<option value="${escapeHtml(item.partNumber)}">${escapeHtml(item.partNo || "")}</option>`).join("");
     }
 
     function renderParts() {
+      ensureParts();
       const area = document.getElementById("partListArea");
       const query = document.getElementById("partSearch").value.trim().toLowerCase();
       const rows = state.parts
