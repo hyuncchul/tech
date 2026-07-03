@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>사출성형 조건표 관리</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --ink: #17202a;
+      --muted: #657282;
+      --line: #d8dee7;
+      --soft: #eef3f7;
+      --brand: #0f766e;
+      --brand-dark: #0b5f59;
+      --accent: #1d4ed8;
+      --danger: #b91c1c;
+      --warn: #a16207;
+      --shadow: 0 10px 26px rgba(23, 32, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: white;
+    }
+
+    button.primary:hover {
+      background: var(--brand-dark);
+    }
+
+    button.danger {
+      border-color: #fecaca;
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    button.small {
+      min-height: 32px;
+      padding: 0 9px;
+      font-size: 12px;
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #18222f;
+      color: white;
+      padding: 8px 10px 7px;
+      box-shadow: 0 2px 14px rgba(15, 23, 42, 0.24);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .counter {
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: #dbe4ee;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .top-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .language-select {
+      min-height: 32px;
+      max-width: 150px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 7px;
+      background: #ffffff;
+      color: #17202a;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .tab {
+      min-height: 34px;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #e8edf4;
+      font-size: 14px;
+    }
+
+    .tab.active {
+      background: #ffffff;
+      color: #17202a;
+    }
+
+    main {
+      padding: 8px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      overflow: hidden;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 32px;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--line);
+      background: var(--soft);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .section-body {
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .field-grid.two-items {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label,
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 6px 8px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+
+    textarea {
+      min-height: 62px;
+      resize: vertical;
+    }
+
+    .radio-row,
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .radio-pill,
+    .check-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 10px;
+      background: #fbfcfd;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .radio-pill input,
+    .check-pill input {
+      width: auto;
+      min-height: auto;
+      padding: 0;
+    }
+
+    .matrix-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .matrix {
+      min-width: 580px;
+    }
+
+    .excel-pair {
+      min-width: 0;
+    }
+
+    .excel-pair th {
+      width: 24%;
+    }
+
+    .excel-pair td.value {
+      width: 18%;
+    }
+
+    .excel-pair td.unit {
+      width: 8%;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .mold-table {
+      min-width: 0;
+    }
+
+    .mold-table th,
+    .mold-table td {
+      width: 33.333%;
+    }
+
+    .mold-checks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      justify-items: stretch;
+    }
+
+    .sheet-section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .sheet-scroll {
+      overflow: auto;
+      background: white;
+    }
+
+    .condition-sheet {
+      min-width: 650px;
+      table-layout: fixed;
+      font-size: 12px;
+    }
+
+    .condition-sheet col.label-col {
+      width: 17%;
+    }
+
+    .condition-sheet col.value-col {
+      width: 16%;
+    }
+
+    .condition-sheet col.unit-col {
+      width: 9%;
+    }
+
+    .condition-sheet .sheet-title {
+      background: #ffffff;
+      font-size: 18px;
+      letter-spacing: 0;
+      height: 34px;
+    }
+
+    .condition-sheet .band {
+      background: #e8edf4;
+      font-weight: 900;
+    }
+
+    .condition-sheet .blank-row td {
+      height: 8px;
+      padding: 0;
+      background: #ffffff;
+    }
+
+    .condition-sheet input,
+    .condition-sheet textarea {
+      border: 0;
+      border-radius: 0;
+      min-height: 28px;
+      padding: 4px 5px;
+      box-shadow: none;
+      text-align: center;
+    }
+
+    .condition-sheet textarea {
+      min-height: 68px;
+      text-align: left;
+    }
+
+    .condition-sheet .check-pill {
+      border: 0;
+      min-height: 28px;
+      padding: 0 4px;
+      background: transparent;
+      justify-content: center;
+    }
+
+    .condition-sheet .checks-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 4px;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #e8edf4;
+      color: #223041;
+      font-weight: 900;
+    }
+
+    td input {
+      min-height: 30px;
+      padding: 4px 6px;
+      text-align: center;
+    }
+
+    .action-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 15;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 0 -8px -8px;
+      padding: 8px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .searchbar {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .records {
+      display: grid;
+      gap: 10px;
+    }
+
+    .part-editor {
+      display: grid;
+      gap: 8px;
+    }
+
+    .part-list-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 260px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .part-list-wrap table {
+      min-width: 620px;
+    }
+
+    .record-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .record-head {
+      display: grid;
+      gap: 3px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .record-title {
+      font-weight: 900;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .record-meta {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .record-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px;
+    }
+
+    .detail {
+      display: none;
+      padding: 10px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .record-card.open .detail {
+      display: block;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .detail-section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .detail-section h3 {
+      margin: 0;
+      padding: 7px 9px;
+      background: var(--soft);
+      font-size: 13px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: minmax(110px, 0.55fr) minmax(0, 1fr);
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .kv:first-of-type {
+      border-top: 0;
+    }
+
+    .kv div {
+      padding: 7px 8px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .kv div:first-child {
+      background: #fbfcfd;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 180px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+      line-height: 1.5;
+      background: #fbfcfe;
+    }
+
+    .notice {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      left: 10px;
+      right: 10px;
+      bottom: 74px;
+      z-index: 40;
+      display: none;
+      max-width: 540px;
+      margin: 0 auto;
+      border-radius: 8px;
+      background: #17202a;
+      color: white;
+      padding: 11px 14px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    @media (min-width: 780px) {
+      .topbar {
+        padding: 9px 12px 8px;
+      }
+
+      h1 {
+        font-size: 19px;
+      }
+
+      main {
+        padding: 10px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .wide,
+      .action-bar {
+        grid-column: auto;
+      }
+
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field-grid.two-items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .toolbar {
+        grid-template-columns: repeat(5, max-content);
+      }
+
+      .searchbar {
+        grid-template-columns: minmax(260px, 1fr) 180px;
+        align-items: end;
+      }
+
+      .records {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .record-card.open {
+        grid-column: 1 / -1;
+      }
+
+      .detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .action-bar {
+        position: sticky;
+        margin: 0 -10px -10px;
+        border: 1px solid var(--line);
+        border-radius: 0;
+      }
+    }
+
+    @media (max-height: 760px) {
+      .topbar {
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+
+      .title-row {
+        margin-bottom: 5px;
+      }
+
+      h1 {
+        font-size: 17px;
+      }
+
+      .section-title {
+        min-height: 30px;
+      }
+
+      input,
+      select,
+      textarea {
+        min-height: 32px;
+      }
+
+      td input {
+        min-height: 28px;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .toolbar,
+      .searchbar,
+      .record-actions,
+      .action-bar,
+      .toast {
+        display: none !important;
+      }
+
+      body,
+      .app {
+        background: white;
+        box-shadow: none;
+      }
+
+      main {
+        padding: 0;
+      }
+
+      .view {
+        display: none !important;
+      }
+
+      #view-records {
+        display: block !important;
+      }
+
+      .record-card {
+        page-break-inside: avoid;
+      }
+
+      .record-card .detail {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title-row">
+        <h1 data-i18n="appTitle">射出成型條件表 관리</h1>
+        <div class="top-tools">
+          <select class="language-select" id="languageSelect" aria-label="Language">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+            <option value="zh-TW">台灣中文</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="id">Indonesia</option>
+          </select>
+          <div class="counter" id="recordCount">0건</div>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="화면 전환">
+        <button class="tab active" type="button" data-view="input" data-i18n="tabInput">입력</button>
+        <button class="tab" type="button" data-view="records" data-i18n="tabRecords">조회</button>
+        <button class="tab" type="button" data-view="backup" data-i18n="tabBackup">저장</button>
+        <button class="tab" type="button" data-view="parts" data-i18n="tabParts">Part 관리</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="view active" id="view-input">
+        <form class="form-grid" id="conditionForm" autocomplete="off">
+          <section class="section wide" style="order: 1">
+            <div class="section-title">
+              <span data-i18n="basicInfo">기본 정보</span>
+              <span id="editBadge"></span>
+            </div>
+            <div class="section-body">
+              <div class="field-grid two-items">
+                <div class="field full"><label for="partNumber" data-i18n="partNumber">Part Number</label><input id="partNumber" name="partNumber" autocapitalize="characters" list="partNumberList"><datalist id="partNumberList"></datalist></div>
+                <div class="field"><label for="partNo" data-i18n="partNo">料號 / 품번</label><input id="partNo" name="partNo" autocapitalize="characters"></div>
+                <div class="field"><label for="machine" data-i18n="machine">機台 / 기계</label><input id="machine" name="machine"></div>
+                <div class="field"><label for="moldNo" data-i18n="moldNo">模號 / 금형번호</label><input id="moldNo" name="moldNo"></div>
+                <div class="field"><label for="date" data-i18n="date">日期 / 날짜</label><input id="date" name="date" type="date"></div>
+                <div class="field full">
+                  <span class="mini-label" data-i18n="runType">구분</span>
+                  <div class="radio-row">
+                    <label class="radio-pill"><input type="radio" name="runType" value="量產" checked> 量產 / 양산</label>
+                    <label class="radio-pill"><input type="radio" name="runType" value="試模"> 試模 / 시모</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 2">
+            <div class="section-title" data-i18n="barrelTemp">料管溫度 / 료관 온도</div>
+            <div class="section-body">
+              <div class="matrix-wrap">
+                <table class="matrix">
+                  <thead><tr><th>射嘴</th><th>溫度一</th><th>溫度二</th><th>溫度三</th><th>溫度四</th><th>單位</th></tr></thead>
+                  <tbody><tr><td><input name="nozzleTemp"></td><td><input name="barrelTemp1"></td><td><input name="barrelTemp2"></td><td><input name="barrelTemp3"></td><td><input name="barrelTemp4"></td><td>℃</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 3">
+            <div class="section-title" data-i18n="closeOpen">關模 / 開模</div>
+            <div class="section-body">
+              <div class="matrix-wrap">
+                <table class="matrix">
+                  <thead><tr><th>항목</th><th>1</th><th>2</th><th>3</th><th>低壓 / 4</th><th>단위</th></tr></thead>
+                  <tbody>
+                    <tr><th>關模 速度</th><td><input name="closeSpeed1"></td><td><input name="closeSpeed2"></td><td><input name="closeSpeed3"></td><td><input name="closeSpeedLow"></td><td>%</td></tr>
+                    <tr><th>關模 壓力</th><td><input name="closePressure1"></td><td><input name="closePressure2"></td><td><input name="closePressure3"></td><td><input name="closePressureLow"></td><td>bar</td></tr>
+                    <tr><th>關模 位置</th><td><input name="closePosition1"></td><td><input name="closePosition2"></td><td><input name="closePosition3"></td><td><input name="closePositionLow"></td><td>mm</td></tr>
+                    <tr><th>開模 速度</th><td><input name="openSpeed1"></td><td><input name="openSpeed2"></td><td><input name="openSpeed3"></td><td><input name="openSpeed4"></td><td>%</td></tr>
+                    <tr><th>開模 壓力</th><td><input name="openPressure1"></td><td><input name="openPressure2"></td><td><input name="openPressure3"></td><td><input name="openPressure4"></td><td>bar</td></tr>
+                    <tr><th>開模 位置</th><td><input name="openPosition1"></td><td><input name="openPosition2"></td><td><input name="openPosition3"></td><td><input name="openPosition4"></td><td>mm</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 4">
+            <div class="section-title" data-i18n="melt">熔膠 / 계량</div>
+            <div class="section-body">
+              <div class="matrix-wrap">
+                <table class="matrix">
+                  <thead><tr><th>항목</th><th>前鬆退</th><th>1</th><th>2</th><th>後鬆退</th><th>단위</th></tr></thead>
+                  <tbody>
+                    <tr><th>轉速</th><td><input name="meltRpmPre"></td><td><input name="meltRpm1"></td><td><input name="meltRpm2"></td><td><input name="meltRpmPost"></td><td>%</td></tr>
+                    <tr><th>背壓</th><td><input name="meltBackPressurePre"></td><td><input name="meltBackPressure1"></td><td><input name="meltBackPressure2"></td><td><input name="meltBackPressurePost"></td><td>bar</td></tr>
+                    <tr><th>速度</th><td><input name="meltSpeedPre"></td><td><input name="meltSpeed1"></td><td><input name="meltSpeed2"></td><td><input name="meltSpeedPost"></td><td>%</td></tr>
+                    <tr><th>壓力</th><td><input name="meltPressurePre"></td><td><input name="meltPressure1"></td><td><input name="meltPressure2"></td><td><input name="meltPressurePost"></td><td>bar</td></tr>
+                    <tr><th>位置</th><td><input name="meltPositionPre"></td><td><input name="meltPosition1"></td><td><input name="meltPosition2"></td><td><input name="meltPositionPost"></td><td>mm</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 5">
+            <div class="section-title" data-i18n="timeWeight">시간 / 중량 / 특성</div>
+            <div class="section-body">
+              <div class="matrix-wrap">
+                <table class="excel-pair">
+                  <tbody>
+                    <tr><th>冷卻時間</th><td class="value"><input id="coolingTime" name="coolingTime"></td><td class="unit">sec</td><th>週期時間</th><td class="value"><input id="cycleTime" name="cycleTime"></td><td class="unit">sec</td></tr>
+                    <tr><th>乾燥時間</th><td class="value"><input id="dryTime" name="dryTime"></td><td class="unit">hrs</td><th>乾燥溫度</th><td class="value"><input id="dryTemp" name="dryTemp"></td><td class="unit">℃</td></tr>
+                    <tr><th>Tray重量</th><td class="value"><input id="trayWeight" name="trayWeight"></td><td class="unit">g</td><th>料頭重量</th><td class="value"><input id="sprueWeight" name="sprueWeight"></td><td class="unit">g</td></tr>
+                    <tr><th>彎度</th><td class="value"><input id="warpage" name="warpage"></td><td class="unit">Mill</td><th>S.R 電阻</th><td class="value"><input id="srResistance" name="srResistance"></td><td class="unit">Ω</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 6">
+            <div class="section-title" data-i18n="moldPressure">금형 / 압법</div>
+            <div class="section-body">
+              <div class="matrix-wrap">
+                <table class="mold-table">
+                  <thead><tr><th>公模</th><th>母模</th><th>壓法</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td><input id="maleMoldTemp" name="maleMoldTemp" placeholder="℃"></td>
+                      <td><input id="femaleMoldTemp" name="femaleMoldTemp" placeholder="℃"></td>
+                      <td rowspan="2"><div class="mold-checks"><label class="check-pill"><input type="checkbox" name="positivePressure"> 正壓正放</label><label class="check-pill"><input type="checkbox" name="reversePressure"> 反壓反放</label></div></td>
+                    </tr>
+                    <tr><td><label class="check-pill"><input type="checkbox" name="maleWaterTempMachine"> 水溫機</label></td><td><label class="check-pill"><input type="checkbox" name="femaleWaterTempMachine"> 水溫機</label></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 7">
+            <div class="section-title" data-i18n="bendSketchTitle">彎曲示意圖(冷卻完)</div>
+            <div class="section-body">
+              <div class="field">
+                <label for="bendSketch" data-i18n="bendSketchLabel">냉각 후 휨 상태 메모</label>
+                <textarea id="bendSketch" name="bendSketch" data-i18n-placeholder="bendSketchPlaceholder" placeholder="도식 또는 휨 방향/상태를 간단히 기록"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 8">
+            <div class="section-title" data-i18n="injection">射出 / 사출</div>
+            <div class="section-body"><div class="matrix-wrap"><table class="matrix">
+              <thead><tr><th>항목</th><th>3</th><th>2</th><th>1</th><th>단위</th></tr></thead>
+              <tbody>
+                <tr><th>速度</th><td><input name="injSpeed3"></td><td><input name="injSpeed2"></td><td><input name="injSpeed1"></td><td>%</td></tr>
+                <tr><th>壓力</th><td><input name="injPressure3"></td><td><input name="injPressure2"></td><td><input name="injPressure1"></td><td>bar</td></tr>
+                <tr><th>時間</th><td><input name="injTime3"></td><td><input name="injTime2"></td><td><input name="injTime1"></td><td>sec</td></tr>
+              </tbody>
+            </table></div></div>
+          </section>
+
+          <section class="section" style="order: 9">
+            <div class="section-title" data-i18n="holding">保壓 / 보압</div>
+            <div class="section-body"><div class="matrix-wrap"><table class="matrix">
+              <thead><tr><th>항목</th><th>3</th><th>2</th><th>1</th><th>단위</th></tr></thead>
+              <tbody>
+                <tr><th>速度</th><td><input name="holdSpeed3"></td><td><input name="holdSpeed2"></td><td><input name="holdSpeed1"></td><td>%</td></tr>
+                <tr><th>壓力</th><td><input name="holdPressure3"></td><td><input name="holdPressure2"></td><td><input name="holdPressure1"></td><td>bar</td></tr>
+                <tr><th>時間</th><td><input name="holdTime3"></td><td><input name="holdTime2"></td><td><input name="holdTime1"></td><td>sec</td></tr>
+              </tbody>
+            </table></div></div>
+          </section>
+
+          <section class="section" style="order: 10">
+            <div class="section-title" data-i18n="ejector">頂針 / 이젝터</div>
+            <div class="section-body"><div class="matrix-wrap"><table class="matrix">
+              <thead><tr><th>항목</th><th>前進 1</th><th>前進 2</th><th>後退 2</th><th>後退 1</th><th>단위</th></tr></thead>
+              <tbody>
+                <tr><th>速度</th><td><input name="ejForwardSpeed1"></td><td><input name="ejForwardSpeed2"></td><td><input name="ejBackSpeed2"></td><td><input name="ejBackSpeed1"></td><td>%</td></tr>
+                <tr><th>壓力</th><td><input name="ejForwardPressure1"></td><td><input name="ejForwardPressure2"></td><td><input name="ejBackPressure2"></td><td><input name="ejBackPressure1"></td><td>bar</td></tr>
+                <tr><th>位置</th><td><input name="ejForwardPosition1"></td><td><input name="ejForwardPosition2"></td><td><input name="ejBackPosition2"></td><td><input name="ejBackPosition1"></td><td>mm</td></tr>
+              </tbody>
+            </table></div></div>
+          </section>
+
+          <section class="section" style="order: 11">
+            <div class="section-title" data-i18n="switchSetting">保壓切換設置 / 보압 전환</div>
+            <div class="section-body">
+              <div class="field-grid two-items">
+                <div class="field"><label class="check-pill"><input type="checkbox" name="switchByPosition"> 保壓切換</label><input name="switchPosition" placeholder="位置"></div>
+                <div class="field"><label class="check-pill"><input type="checkbox" name="switchByTime"> 保壓切換</label><input name="switchTime" placeholder="時間"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" style="order: 12">
+            <div class="section-title" data-i18n="dimensions">EL / OL / OW 치수</div>
+            <div class="section-body"><div class="matrix-wrap"><table class="matrix">
+              <thead><tr><th>NO</th><th>EL 長</th><th>OL 長</th><th>OW 寬</th><th>단위</th></tr></thead>
+              <tbody>
+                <tr><th>1</th><td><input name="dim1El"></td><td><input name="dim1Ol"></td><td><input name="dim1Ow"></td><td>mm</td></tr>
+                <tr><th>2</th><td><input name="dim2El"></td><td><input name="dim2Ol"></td><td><input name="dim2Ow"></td><td>mm</td></tr>
+              </tbody>
+            </table></div></div>
+          </section>
+
+          <section class="section wide" style="order: 13">
+            <div class="section-title" data-i18n="technicianNotes">기술원 / 비고</div>
+            <div class="section-body">
+              <div class="field-grid">
+                <div class="field"><label for="technician" data-i18n="technician">技術員 / 기술원</label><input id="technician" name="technician"></div>
+                <div class="field full"><label for="notes" data-i18n="notes">備註 / 비고</label><textarea id="notes" name="notes"></textarea></div>
+              </div>
+            </div>
+          </section>
+
+          <div class="action-bar" style="order: 14">
+            <button type="button" id="clearForm" data-i18n="clear">초기화</button>
+            <button class="primary" type="button" id="saveRecord" data-i18n="save">저장</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="view" id="view-records">
+        <div class="toolbar">
+          <button class="primary" type="button" id="newRecord" data-i18n="newRecord">새 입력</button>
+          <button type="button" id="copyLast" data-i18n="copyLast">마지막 복사</button>
+          <button type="button" id="printRecords" data-i18n="print">인쇄</button>
+          <button class="danger" type="button" id="deleteAll" data-i18n="deleteAll">전체 삭제</button>
+        </div>
+        <div class="searchbar">
+          <div class="field">
+            <label for="searchText" data-i18n="search">검색</label>
+            <input id="searchText" data-i18n-placeholder="searchPlaceholder" placeholder="Part Number, 품번, 기계, 금형번호, 기술원, 비고">
+          </div>
+          <div class="field">
+            <label for="filterDate" data-i18n="filterDate">날짜</label>
+            <input id="filterDate" type="date">
+          </div>
+        </div>
+        <div id="recordsArea" class="records"></div>
+      </section>
+
+      <section class="view" id="view-backup">
+        <div class="form-grid">
+          <section class="section wide">
+            <div class="section-title" data-i18n="backupTitle">저장 / 백업</div>
+            <div class="section-body">
+              <p class="notice" data-i18n="backupNotice">입력 내용은 이 기기의 브라우저에 자동 저장됩니다. 다른 기기로 옮길 때는 백업 JSON을 저장하고, 같은 화면에서 다시 불러오면 됩니다.</p>
+              <div class="toolbar">
+                <button class="primary" type="button" id="exportCsv" data-i18n="exportCsv">Excel용 CSV</button>
+                <button type="button" id="exportJson" data-i18n="exportJson">백업 JSON</button>
+                <button type="button" id="importJsonButton" data-i18n="importJson">백업 불러오기</button>
+                <button type="button" id="sampleRecord" data-i18n="sampleRecord">샘플 1건</button>
+              </div>
+              <input type="file" id="importJson" accept="application/json,.json" hidden>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-parts">
+        <section class="section wide">
+          <div class="section-title" data-i18n="partsTitle">Part Number 관리</div>
+          <div class="section-body">
+            <div class="field">
+              <label for="partSearch" data-i18n="partSearch">Part 검색</label>
+              <input id="partSearch" data-i18n-placeholder="partSearchPlaceholder" placeholder="Part Number / 품번">
+            </div>
+            <div class="part-list-wrap" id="partListArea"></div>
+            <div class="part-editor">
+              <div class="field-grid two-items">
+                <div class="field">
+                  <label for="editPartNumber" data-i18n="partNumber">Part Number</label>
+                  <input id="editPartNumber" autocapitalize="characters">
+                </div>
+                <div class="field">
+                  <label for="editPartNo" data-i18n="partNo">料號 / 품번</label>
+                  <input id="editPartNo">
+                </div>
+              </div>
+              <div class="toolbar">
+                <button class="primary" type="button" id="savePart" data-i18n="savePart">Part 저장</button>
+                <button type="button" id="clearPart" data-i18n="clear">초기화</button>
+                <button class="danger" type="button" id="deletePart" data-i18n="delete">삭제</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "injectionMoldingConditionRecords.v1";
+    const LANGUAGE_KEY = "injectionMoldingLanguage.v1";
+    const PART_MASTER_KEY = "injectionMoldingPartMaster.v1";
+    const PN_MASTER = [{"partNumber": "1I000116E", "partNo": "CLIP 43.0X5.40 5.50 installation"}, {"partNumber": "1I000114E", "partNo": "ENDTAB CLIP 43.00X5.40 5.50"}, {"partNumber": "1I000115E", "partNo": "ENDTAB CLIP 43.0X5.40 5.50 w/2D barcode"}, {"partNumber": "17B05059001LE", "partNo": "J/A BGA 11.5X9.5 1.01T"}, {"partNumber": "17B05059002LE", "partNo": "J/A BGA 11.5X9.5 1.01T"}, {"partNumber": "17B05059003LE", "partNo": "J/A BGA 11.5X9.5 1.01T"}, {"partNumber": "1M999286000E", "partNo": "J/A BGA 11.5X9.5 1.01T"}, {"partNumber": "1M999350000EB", "partNo": "J/A BGA 11.5X9.5 1.01T"}, {"partNumber": "17B05113001LE", "partNo": "J/A BGA 15.0X9.5 1.01T/REV.A(Assembly)"}, {"partNumber": "17B05112001LE", "partNo": "J/A BGA 16.0X9.5 1.22T/REV.A(Assembly)"}, {"partNumber": "17B05045001LE", "partNo": "J/A BGA 2.5X2.5 0.86T"}, {"partNumber": "17B05041001LE", "partNo": "J/A BGA 7.5X13.3 1.1T"}, {"partNumber": "17B05041002LE", "partNo": "J/A BGA 7.5X13.3 1.1T"}, {"partNumber": "1M999472000E", "partNo": "J/A BGA 7X6 0.545T"}, {"partNumber": "1M999472001E", "partNo": "J/A BGA 7X6 0.545T"}, {"partNumber": "1M999472002E", "partNo": "J/A BGA 7X6 0.545T"}, {"partNumber": "17B05098001LE", "partNo": "J/A CSP 8.1X8.1 0.99T/A"}, {"partNumber": "17B05077001LE", "partNo": "J/A CSP 8.5X6.5 1.05T"}, {"partNumber": "17B05077002LE", "partNo": "J/A CSP 8.5X6.5 1.05T"}, {"partNumber": "17B05078001LE", "partNo": "J/A CSP 9.0X6.5 1.05T"}, {"partNumber": "17B05078002LE", "partNo": "J/A CSP 9.0X6.5 1.05T"}, {"partNumber": "17B13010001LE", "partNo": "J/A FBGA 9X11 1.04T"}, {"partNumber": "17B05029001LE", "partNo": "J/A FC-BGA 25X25 1.00T"}, {"partNumber": "1M999540000E", "partNo": "J/A FC-BGA 25X35 0.75T"}, {"partNumber": "1M999540001E", "partNo": "J/A FC-BGA 25X35 0.75T"}, {"partNumber": "1M999540002E", "partNo": "J/A FC-BGA 25X35 0.75T"}, {"partNumber": "1M999540003E", "partNo": "J/A FC-BGA 25X35 0.75T"}, {"partNumber": "17B05085001LE", "partNo": "J/A FC-BGA 25X35 0.75T"}, {"partNumber": "17B05085002LE", "partNo": "J/A FC-BGA 25X35 0.75T"}, {"partNumber": "17B05068001LE", "partNo": "J/A LGA 2.41X3.00 1.38T"}, {"partNumber": "17R01004001LE", "partNo": "J/A LGA 2.41X3.00 1.38T"}, {"partNumber": "17B05069001LE", "partNo": "J/A LGA 2.41X3.00 1.50T"}, {"partNumber": "17R01005001LE", "partNo": "J/A LGA 2.41X3.00 1.50T"}, {"partNumber": "17B05019001LE", "partNo": "J/A LGA 2.5X2.0 0.81T"}, {"partNumber": "17B05067001LE", "partNo": "J/A LGA 2.5X2.5 1.50T"}, {"partNumber": "17B05067002LE", "partNo": "J/A LGA 2.5X2.5 1.50T"}, {"partNumber": "17R01002001LE", "partNo": "J/A LGA 2.5X2.5 1.50T"}, {"partNumber": "17B05066001LE", "partNo": "J/A LGA 3.0X3.0 1.15T"}, {"partNumber": "17B05066002LE", "partNo": "J/A LGA 3.0X3.0 1.15T"}, {"partNumber": "17R01003001LE", "partNo": "J/A LGA 3.0X3.0 1.15T"}, {"partNumber": "17R01009001LE", "partNo": "J/A LGA 3X3 1.15T/REV.A"}, {"partNumber": "17B05070001LE", "partNo": "J/A LGA 3X3 1.50T"}, {"partNumber": "17B05070002LE", "partNo": "J/A LGA 3X3 1.50T"}, {"partNumber": "17R01006001LE", "partNo": "J/A LGA 3X3 1.50T"}, {"partNumber": "17B05114001LE", "partNo": "J/A LGA 3X3 1.50T/REV.A"}, {"partNumber": "17B08005001LE", "partNo": "J/A LGA 4.4X8.2 2.92T"}, {"partNumber": "17B08005002LE", "partNo": "J/A LGA 4.4X8.2 2.92T"}, {"partNumber": "17B08005003LE", "partNo": "J/A LGA 4.4X8.2 2.92T/A"}, {"partNumber": "17B05071001LE", "partNo": "J/A LGA 4.5X4.0 1.55T"}, {"partNumber": "17B05071002LE", "partNo": "J/A LGA 4.5X4.0 1.55T"}, {"partNumber": "17B05115001LE", "partNo": "J/A LGA 4.5X4.0 1.55T/REV.A"}, {"partNumber": "17R01008001LE", "partNo": "J/A LGA 4.5X4.0 1.55T/REV.A"}, {"partNumber": "17B08006001LE", "partNo": "J/A LGA 6.2X4.2 2.42T"}, {"partNumber": "17B08015001LE", "partNo": "J/A LGA 6.2X4.2 2.42T REV.A"}, {"partNumber": "17B05050001LE", "partNo": "J/A LGA 6.2X7.4 1.15T"}, {"partNumber": "17B05058001LE", "partNo": "J/A MEMS 2.680X5.173 1.56T"}, {"partNumber": "17B05035001LE", "partNo": "J/A MEMS 2X2 0.95T"}, {"partNumber": "17B12012001LE", "partNo": "J/A MEMS 2X2 1.25T"}, {"partNumber": "17B05072001LE", "partNo": "J/A MEMS 3X3 2.22T"}, {"partNumber": "17B05072002LE", "partNo": "J/A MEMS 3X3 2.22T"}, {"partNumber": "17B05072003LE", "partNo": "J/A MEMS 3X3 2.22T"}, {"partNumber": "17B05060001LE", "partNo": "J/A MLF 2X2 1.30T"}, {"partNumber": "17B05060002LE", "partNo": "J/A MLF 2X2 1.30T"}, {"partNumber": "17B05060003LE", "partNo": "J/A MLF 2X2 1.30T"}, {"partNumber": "17B05023002LE", "partNo": "J/A MLF 7X7 0.85T"}, {"partNumber": "17B05023001LE", "partNo": "J/A MLF 7X7 0.85T"}, {"partNumber": "17B05033001LE", "partNo": "J/A MLF 7X7 0.85T"}, {"partNumber": "17B05033002LE", "partNo": "J/A MLF 7X7 0.85T"}, {"partNumber": "17B05107001LE", "partNo": "J/A MLF 7X7 0.85T/Rev.A"}, {"partNumber": "17B05107002LE", "partNo": "J/A MLF 7X7 0.85T/Rev.A"}, {"partNumber": "1M999560000E", "partNo": "J/A MLF 9X9 0.85T"}, {"partNumber": "1M999560001E", "partNo": "J/A MLF 9X9 0.85T"}, {"partNumber": "1M999560002E", "partNo": "J/A MLF 9X9 0.85T"}, {"partNumber": "17B05108001LE", "partNo": "J/A MLF 9X9 0.85T/Rev.A"}, {"partNumber": "17B05108002LE", "partNo": "J/A MLF 9X9 0.85T/Rev.A"}, {"partNumber": "17R01001001LE", "partNo": "J/A MLF-2 5X5 0.85T"}, {"partNumber": "17B05022001LE", "partNo": "J/A MLF-2 5X5 0.85T"}, {"partNumber": "17B05022002LE", "partNo": "J/A MLF-2 5X5 0.85T"}, {"partNumber": "17B05026001LE", "partNo": "J/A MLF-2 8X8 0.85T"}, {"partNumber": "17B05026002LE", "partNo": "J/A MLF-2 8X8 0.85T"}, {"partNumber": "1M999471000E", "partNo": "J/A MLF-2 8X8 0.85T"}, {"partNumber": "1M999471001E", "partNo": "J/A MLF-2 8X8 0.85T"}, {"partNumber": "1M999471002E", "partNo": "J/A MLF-2 8X8 0.85T"}, {"partNumber": "1M999471003E", "partNo": "J/A MLF-2 8X8 0.85T"}, {"partNumber": "17B05084001LE", "partNo": "J/A MODULE 2.115X2.115 0.60T(Assembly)"}, {"partNumber": "17B05004001LE", "partNo": "J/A MODULE 3.38X3.38 0.791T(35.4Yellow P-BIN)"}, {"partNumber": "17B05005001LE", "partNo": "J/A MODULE 3.38X3.38 CO(35.4Yellow P-BIN)"}, {"partNumber": "17B05006001LE", "partNo": "J/A MODULE-1 3.2X3.2 0.54T(35.4mmGreen P-BIN)"}, {"partNumber": "17B05007001LE", "partNo": "J/A MODULE-1 3.2X3.2 COVER(35.4mmGreen P-BIN)"}, {"partNumber": "17B05008001LE", "partNo": "J/A MODULE-2 3.2X3.2 0.79T(35.4mm Blue P-BIN)"}, {"partNumber": "17B05009001LE", "partNo": "J/A MODULE-2 3.2X3.2 COVER(35.4mm Blue P-BIN)"}, {"partNumber": "1M999317000E", "partNo": "J/A NSP 12.0X12.4 1.35T"}, {"partNumber": "1M999317001E", "partNo": "J/A NSP 12.0X12.4 1.35T"}, {"partNumber": "1M999600000EB", "partNo": "J/A NSP 12X11.1 0.886T"}, {"partNumber": "17B05100001LE", "partNo": "J/A NSP 14.0X12.4 0.89T / REV.A"}, {"partNumber": "17B05100002LE", "partNo": "J/A NSP 14.0X12.4 0.89T / REV.A"}, {"partNumber": "17B05100003LE", "partNo": "J/A NSP 14.0X12.4 0.89T / REV.A"}, {"partNumber": "17B05074001LE", "partNo": "J/A PSP 4.4X4.4 1.15T"}, {"partNumber": "17B05074002LE", "partNo": "J/A PSP 4.4X4.4 1.15T"}, {"partNumber": "17B05074003LE", "partNo": "J/A PSP 4.4X4.4 1.15T"}, {"partNumber": "17B05074004LE", "partNo": "J/A PSP 4.4X4.4 1.15T"}, {"partNumber": "17B05074005LE", "partNo": "J/A PSP 4.4X4.4 1.15T"}, {"partNumber": "17B05074006LE", "partNo": "J/A PSP 4.4X4.4 1.15T"}, {"partNumber": "1M999151000E", "partNo": "J/A PSP 6.28X7.71 1.15T"}, {"partNumber": "1M999151001E", "partNo": "J/A PSP 6.28X7.71 1.15T"}, {"partNumber": "1M999151002E", "partNo": "J/A PSP 6.28X7.71 1.15T"}, {"partNumber": "17B05075001LE", "partNo": "J/A PSP 8.75X5.50 1.25T"}, {"partNumber": "17B05075002LE", "partNo": "J/A PSP 8.75X5.50 1.25T"}, {"partNumber": "17B05075003LE", "partNo": "J/A PSP 8.75X5.50 1.25T"}, {"partNumber": "17B05075004LE", "partNo": "J/A PSP 8.75X5.50 1.25T"}, {"partNumber": "17B05075005LE", "partNo": "J/A PSP 8.75X5.50 1.25T"}, {"partNumber": "1M999159000E", "partNo": "J/A PSP 8X10 0.65T"}, {"partNumber": "1M999159001E", "partNo": "J/A PSP 8X10 0.65T"}, {"partNumber": "1M999159002E", "partNo": "J/A PSP 8X10 0.65T"}, {"partNumber": "1M999159003E", "partNo": "J/A PSP 8X10 0.65T"}, {"partNumber": "17B05097001LE", "partNo": "J/A PSP 8X10 0.65T/B"}, {"partNumber": "1M999524000E", "partNo": "J/A QFN 13X13 0.85T"}, {"partNumber": "1M999524001E", "partNo": "J/A QFN 13X13 0.85T"}, {"partNumber": "17B05036001LE", "partNo": "J/A QFN 5X3.5mm"}, {"partNumber": "17B05081001LE", "partNo": "J/A QFN 5X3.5mm"}, {"partNumber": "17B05081002LE", "partNo": "J/A QFN 5X3.5mm"}, {"partNumber": "1M999361000E", "partNo": "J/H BGA 50X50 4.37T"}, {"partNumber": "1M999361001E", "partNo": "J/H BGA 50X50 4.37T"}, {"partNumber": "1M999361002E", "partNo": "J/H BGA 50X50 4.37T"}, {"partNumber": "1M999446000E", "partNo": "J/H BGA 50X50 4.37T"}, {"partNumber": "1M999354000E", "partNo": "J/H BGA 55X55 5.77T"}, {"partNumber": "1M999432000E", "partNo": "J/H BGA 55X55 5.77T"}, {"partNumber": "1M999432001E", "partNo": "J/H BGA 55X55 5.77T"}, {"partNumber": "1M999432002E", "partNo": "J/H BGA 55X55 5.77T"}, {"partNumber": "1M999427000E", "partNo": "J/H BGA 60X60 4.97T"}, {"partNumber": "1M999433000EB", "partNo": "J/H BGA 65X65 5.67T"}, {"partNumber": "17B05093001LE", "partNo": "J/H FC-BGA 27X27 3.18T"}, {"partNumber": "17B05093002LE", "partNo": "J/H FC-BGA 27X27 3.18T"}, {"partNumber": "1M999463000E", "partNo": "J/H FC-BGA 35X35 4.54T"}, {"partNumber": "1M999463001E", "partNo": "J/H FC-BGA 35X35 4.54T"}, {"partNumber": "17B05090001LE", "partNo": "J/H FC-BGA 37.5X37.5 3.99T"}, {"partNumber": "17B05111001LE", "partNo": "J/H FC-BGA 37.5X37.5 3.99T"}, {"partNumber": "1M999299000E", "partNo": "J/H FC-BGA 37.5X37.5 3.99T"}, {"partNumber": "1M999299001E", "partNo": "J/H FC-BGA 37.5X37.5 3.99T"}, {"partNumber": "17B05105001LE", "partNo": "J/H FC-BGA 47.5X52.5 4.29T / REV.A"}, {"partNumber": "17B05105002LE", "partNo": "J/H FC-BGA 47.5X52.5 4.29T / REV.A"}, {"partNumber": "17B05104001LE", "partNo": "J/H FC-BGA 52.5X55.0 4.31T / REV.A"}, {"partNumber": "17B05104002LE", "partNo": "J/H FC-BGA 52.5X55.0 4.31T / REV.A"}, {"partNumber": "17B05094001LE", "partNo": "J/H FC-BGA 55X55 4.39T"}, {"partNumber": "17B05101001LE", "partNo": "J/H FC-BGA 55X55 4.39T"}, {"partNumber": "1M999254000E", "partNo": "J/H FC-BGA 55X55 4.39T"}, {"partNumber": "1M999254001E", "partNo": "J/H FC-BGA 55X55 4.39T"}, {"partNumber": "1M999254002E", "partNo": "J/H FC-BGA 55X55 4.39T"}, {"partNumber": "1M999221000E", "partNo": "J/H FC-BGA 57.5X57.5 4.39T"}, {"partNumber": "1M999221001E", "partNo": "J/H FC-BGA 57.5X57.5 4.39T"}, {"partNumber": "1M999221002E", "partNo": "J/H FC-BGA 57.5X57.5 4.39T"}, {"partNumber": "1M999221003E", "partNo": "J/H FC-BGA 57.5X57.5 4.39T"}, {"partNumber": "1M999397000E", "partNo": "J/H FC-BGA 57.5X57.5 4.39T"}, {"partNumber": "17B12006001LE", "partNo": "J/H MODULE 48X61 2.29T"}, {"partNumber": "17B12006002LE", "partNo": "J/H MODULE 48X61 2.29T"}, {"partNumber": "17B05042001LE", "partNo": "J/L BGA 12.3X12.3 1.84T"}, {"partNumber": "17B05042002LE", "partNo": "J/L BGA 12.3X12.3 1.84T"}, {"partNumber": "17B05118001LE", "partNo": "J/L BGA 12.3X12.3 1.84T/REV.A"}, {"partNumber": "1M999598000E", "partNo": "J/L BGA 14X14 0.705T"}, {"partNumber": "17B05083001LE", "partNo": "J/L BGA 17X17 1.30T"}, {"partNumber": "1M999561000EB", "partNo": "J/L BGA 18X18 1.22T"}, {"partNumber": "1M999510000E", "partNo": "J/L BGA 19X19 1.73T"}, {"partNumber": "1M999510001E", "partNo": "J/L BGA 19X19 1.73T"}, {"partNumber": "1M999510002E", "partNo": "J/L BGA 19X19 1.73T"}, {"partNumber": "17B12005001LE", "partNo": "J/L BGA 27.70X26.07 1.44T"}, {"partNumber": "17B12005002LE", "partNo": "J/L BGA 27.70X26.07 1.44T"}, {"partNumber": "17B12001001LE", "partNo": "J/L BGA 27.7X23.21 1.5T"}, {"partNumber": "17B12001002LE", "partNo": "J/L BGA 27.7X23.21 1.5T"}, {"partNumber": "17B12002001LE", "partNo": "J/L BGA 27.7X24 1.08T"}, {"partNumber": "17B12002002LE", "partNo": "J/L BGA 27.7X24 1.08T"}, {"partNumber": "17B12004001LE", "partNo": "J/L BGA 27.7X24.0 1.44T"}, {"partNumber": "17B12004002LE", "partNo": "J/L BGA 27.7X24.0 1.44T"}, {"partNumber": "17B05046001LE", "partNo": "J/L BGA 9X15 1.62T"}, {"partNumber": "17B05046002LE", "partNo": "J/L BGA 9X15 1.62T"}, {"partNumber": "17B05046003LE", "partNo": "J/L BGA 9X15 1.62T"}, {"partNumber": "17B05046004LE", "partNo": "J/L BGA 9X15 1.62T"}, {"partNumber": "17B05046005LE", "partNo": "J/L BGA 9X15 1.62T"}, {"partNumber": "17B05017001LE", "partNo": "J/L CABGA 10X10 1.04T"}, {"partNumber": "17B05032001LE", "partNo": "J/L CABGA 10X10 1.04T"}, {"partNumber": "17B05032002LE", "partNo": "J/L CABGA 10X10 1.04T"}, {"partNumber": "17B05032003LE", "partNo": "J/L CABGA 10X10 1.04T"}, {"partNumber": "17B07007001LE", "partNo": "J/L CABGA 10X10 1.04T"}, {"partNumber": "17B05016001LE", "partNo": "J/L CABGA 12X13 1.06T"}, {"partNumber": "17B05103001LE", "partNo": "J/L CABGA 14X14 0.80T / REV.C"}, {"partNumber": "17B05063001LE", "partNo": "J/L CABGA 14X14 0.8T"}, {"partNumber": "17B05048001LE", "partNo": "J/L CABGA 9X9 1.06T"}, {"partNumber": "17B05048002LE", "partNo": "J/L CABGA 9X9 1.06T"}, {"partNumber": "17B05048003LE", "partNo": "J/L CABGA 9X9 1.06T"}, {"partNumber": "17B05049001LE", "partNo": "J/L CABGA 9X9 1.06T"}, {"partNumber": "17B08002001LE", "partNo": "J/L CABGA 9X9 1.06T"}, {"partNumber": "17B05106002LE", "partNo": "J/L CABGA 9x9 1.06T REV.C"}, {"partNumber": "1M999591000E", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "1M999591001E", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "1M999591002E", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "1M999591003E", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "1M999777000E", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "17B05096001LE", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "1M999609000EB", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "1M999609001EB", "partNo": "J/L CSP 12X12 0.85T"}, {"partNumber": "17B05015001LE", "partNo": "J/L CSP 13X10 1.33T"}, {"partNumber": "17B05015002LE", "partNo": "J/L CSP 13X10 1.33T"}, {"partNumber": "17B05092001LE", "partNo": "J/L FBGA 25X25 1.39T"}, {"partNumber": "17B05092002LE", "partNo": "J/L FBGA 25X25 1.39T"}, {"partNumber": "17B05028001LE", "partNo": "J/L FBGA 6X8 0.65T"}, {"partNumber": "17B05028002LE", "partNo": "J/L FBGA 6X8 0.65T"}, {"partNumber": "17B05028003LE", "partNo": "J/L FBGA 6X8 0.65T"}, {"partNumber": "17B08003001LE", "partNo": "J/L FBGA 7X7 1.59T"}, {"partNumber": "1M999893001E", "partNo": "J/L FC-BGA 31X31 2.7T"}, {"partNumber": "1M999893002E", "partNo": "J/L FC-BGA 31X31 2.7T"}, {"partNumber": "1M999893003E", "partNo": "J/L FC-BGA 31X31 2.7T"}, {"partNumber": "17B05043001LE", "partNo": "J/L FC-BGA 35X35 2.7T"}, {"partNumber": "1M999911001E", "partNo": "J/L FC-BGA 35X35 2.7T"}, {"partNumber": "1M999911002E", "partNo": "J/L FC-BGA 35X35 2.7T"}, {"partNumber": "1M999911003E", "partNo": "J/L FC-BGA 35X35 2.7T"}, {"partNumber": "17B12003001LE", "partNo": "J/L FC-BGA 37.7X32.7 1.90T"}, {"partNumber": "17B12003002LE", "partNo": "J/L FC-BGA 37.7X32.7 1.90T"}, {"partNumber": "1M999786000EB", "partNo": "J/L HPBGA35X35 3.08T"}, {"partNumber": "17B05031001LE", "partNo": "J/L LGA 3.55X3.55 1.45T"}, {"partNumber": "17B05031002LE", "partNo": "J/L LGA 3.55X3.55 1.45T"}, {"partNumber": "17B05052001LE", "partNo": "J/L LGA 3.55X3.55 2.10T"}, {"partNumber": "17B05091001LE", "partNo": "J/L MEMS 2.80X3.55 1.73T"}, {"partNumber": "17B05099001LE", "partNo": "J/L MEMS 2.80X3.55 1.73T REV.C"}, {"partNumber": "17B05110001LE", "partNo": "J/L MEMS 2.80X3.55 1.73T REV.D"}, {"partNumber": "17B05095001LE", "partNo": "J/L MEMS 3.5X3.5 1.93T/A"}, {"partNumber": "17B05012001LE", "partNo": "J/L MODULE 7.14X12.76 3.70T(X1446) (Assembly)"}, {"partNumber": "17B05012002LE", "partNo": "J/L MODULE 7.14X12.76 3.70T(X1446) (Assembly)"}, {"partNumber": "17B05011001LE", "partNo": "J/L MODULE 7.20X13.01 3.70T (Assembly)"}, {"partNumber": "17B05011002LE", "partNo": "J/L MODULE 7.20X13.01 3.70T (Assembly)"}, {"partNumber": "17B05003001LE", "partNo": "J/L MODULE-2 5.2X11 1.086T"}, {"partNumber": "17B05030001LE", "partNo": "J/L MQFP 10X10 2.0T"}, {"partNumber": "17B05030002LE", "partNo": "J/L MQFP 10X10 2.0T"}, {"partNumber": "17B08001001LE", "partNo": "J/L MQFP 10X10 2.0T"}, {"partNumber": "17B05034001LE", "partNo": "J/L MQFP 28X28 3.37T"}, {"partNumber": "17B05116001LE", "partNo": "J/L MSP 6.84X7.76 1.22T/REV.A"}, {"partNumber": "17B05076001LE", "partNo": "J/L NSP 12.4X12.0 1.33T"}, {"partNumber": "17B05076002LE", "partNo": "J/L NSP 12.4X12.0 1.33T"}, {"partNumber": "17B05040001LE", "partNo": "J/L NSP 12X14 0.70T"}, {"partNumber": "1M999170000E", "partNo": "J/L NSP 6.71X12.20 1.63T"}, {"partNumber": "1M999170001E", "partNo": "J/L NSP 6.71X12.20 1.63T"}, {"partNumber": "1M999170002E", "partNo": "J/L NSP 6.71X12.20 1.63T"}, {"partNumber": "1M999170003E", "partNo": "J/L NSP 6.71X12.20 1.63T"}, {"partNumber": "1M999170004E", "partNo": "J/L NSP 6.71X12.20 1.63T"}, {"partNumber": "1M999508000E", "partNo": "J/L PBGA 21X21 1.31T"}, {"partNumber": "1M999508001E", "partNo": "J/L PBGA 21X21 1.31T"}, {"partNumber": "1M999508002E", "partNo": "J/L PBGA 21X21 1.31T"}, {"partNumber": "1M999508003E", "partNo": "J/L PBGA 21X21 1.31T"}, {"partNumber": "17B05001001LE", "partNo": "J/L PBGA 23X23 1.73T"}, {"partNumber": "17B05001002LE", "partNo": "J/L PBGA 23X23 1.73T"}, {"partNumber": "17B05038001LE", "partNo": "J/L PBGA 23X23 1.73T"}, {"partNumber": "17B05102001LE", "partNo": "J/L PBGA 23X23 1.73T / REV.B"}, {"partNumber": "17B05002001LE", "partNo": "J/L PBGA 27X27 1.53T"}, {"partNumber": "17B05080001LE", "partNo": "J/L PBGA 27X27 1.53T"}, {"partNumber": "17B05044001LE", "partNo": "J/L PBGA 27X27 1.73T"}, {"partNumber": "1M999562000E", "partNo": "J/L PBGA 27X27 1.73T"}, {"partNumber": "1M999562001E", "partNo": "J/L PBGA 27X27 1.73T"}, {"partNumber": "1M999562002E", "partNo": "J/L PBGA 27X27 1.73T"}, {"partNumber": "17B08013001LE", "partNo": "J/L PBGA 27X27 1.73T"}, {"partNumber": "1M999355000E", "partNo": "J/L PBGA 31X31 1.73T"}, {"partNumber": "17B05039001LE", "partNo": "J/L PIM 3.25X3.25 2.53T"}, {"partNumber": "17B05073001LE", "partNo": "J/L PSP 3.00X18.18 1.43T"}, {"partNumber": "17B05073002LE", "partNo": "J/L PSP 3.00X18.18 1.43T"}, {"partNumber": "17B05061001LE", "partNo": "J/L QFN 14X14 0.85T"}, {"partNumber": "17B05062001LE", "partNo": "J/L QFN 14X14 0.85T"}, {"partNumber": "17B05062002LE", "partNo": "J/L QFN 14X14 0.85T"}, {"partNumber": "1M999785000EB", "partNo": "J/L SCSP 11X13 1.40T"}, {"partNumber": "1M999785001EB", "partNo": "J/L SCSP 11X13 1.40T"}, {"partNumber": "1M999785002EB", "partNo": "J/L SCSP 11X13 1.40T"}, {"partNumber": "1M999785003EB", "partNo": "J/L SCSP 11X13 1.40T"}, {"partNumber": "1M999785004EB", "partNo": "J/L SCSP 11X13 1.40T"}, {"partNumber": "1M999785005EB", "partNo": "J/L SCSP 11X13 1.40T"}, {"partNumber": "17B05014001LE", "partNo": "J/L SOIC 16LD 2.3T"}, {"partNumber": "17B08007001LE", "partNo": "J/L SOIC 7.9X15.3 2.48T"}, {"partNumber": "1M999599000E", "partNo": "J/L TFBGA 12X14 1.20T"}, {"partNumber": "1M999599001E", "partNo": "J/L TFBGA 12X14 1.20T"}, {"partNumber": "17B05025001LE", "partNo": "J/L TQFP 10X10 1.0T"}, {"partNumber": "17B05065001LE", "partNo": "J/L TQFP 10X10 1.0T"}, {"partNumber": "17B05054001LE", "partNo": "J/L TQFP 10X10 1.0T"}, {"partNumber": "17B05054002LE", "partNo": "J/L TQFP 10X10 1.0T"}, {"partNumber": "17B07002001LE", "partNo": "J/L TQFP 10X10 1.0T"}, {"partNumber": "17B05037001LE", "partNo": "J/L TQFP 10X10 1.4T"}, {"partNumber": "17B07003001LE", "partNo": "J/L TQFP 10X10 1.4T"}, {"partNumber": "17L01001001LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17B07005001LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17R01007001LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17B05018001LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17B05018002LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17B05018003LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17B05064001LE", "partNo": "J/L TQFP 12X12 1.0T"}, {"partNumber": "17B07001001LE", "partNo": "J/L TQFP 14X14 1.4T"}, {"partNumber": "17B05020001LE", "partNo": "J/L TQFP 14X14 1.4T"}, {"partNumber": "17B05020002LE", "partNo": "J/L TQFP 14X14 1.4T"}, {"partNumber": "17B05021001LE", "partNo": "J/L TQFP 14X14 1.4T"}, {"partNumber": "17B08004001LE", "partNo": "J/L TQFP 14X14 1.4T"}, {"partNumber": "17B08004002LE", "partNo": "J/L TQFP 14X14 1.4T"}, {"partNumber": "17B05057001LE", "partNo": "J/L TQFP 16X16 1.0T"}, {"partNumber": "17B05057003LE", "partNo": "J/L TQFP 16X16 1.0T"}, {"partNumber": "17B05057004LE", "partNo": "J/L TQFP 16X16 1.0T"}, {"partNumber": "17B05117001LE", "partNo": "J/L TQFP 16X16 1.0T/REV.A"}, {"partNumber": "17B05051001LE", "partNo": "J/L TQFP 20X20 1.4T"}, {"partNumber": "1M999394000E", "partNo": "J/L TQFP 20X20 1.4T"}, {"partNumber": "1M999394001E", "partNo": "J/L TQFP 20X20 1.4T"}, {"partNumber": "1M999394002E", "partNo": "J/L TQFP 20X20 1.4T"}, {"partNumber": "17B05056001LE", "partNo": "J/L TQFP 20X20 1.4T"}, {"partNumber": "17B05056002LE", "partNo": "J/L TQFP 20X20 1.4T"}, {"partNumber": "17B05024001LE", "partNo": "J/L TQFP 7X7 1.0T"}, {"partNumber": "17B07006001LE", "partNo": "J/L TQFP 7X7 1.0T"}, {"partNumber": "17B05053001LE", "partNo": "J/L TQFP 7X7 1.0T"}, {"partNumber": "17B05047001LE", "partNo": "J/L TQFP 7X7 1.0T"}, {"partNumber": "17B05047002LE", "partNo": "J/L TQFP 7X7 1.0T"}, {"partNumber": "17B05047005LE", "partNo": "J/L TQFP 7X7 1.0T"}, {"partNumber": "17B05055001LE", "partNo": "J/L TQFP 7X7 1.4T"}, {"partNumber": "17B05055002LE", "partNo": "J/L TQFP 7X7 1.4T"}, {"partNumber": "17B07004001LE", "partNo": "J/L TQFP 7X7 1.4T"}, {"partNumber": "17B07004002LE", "partNo": "J/L TQFP 7X7 1.4T"}, {"partNumber": "17B08008001LE", "partNo": "J/L TSSOP 14LD 1.13T"}, {"partNumber": "1M999788000E", "partNo": "JEDEC/LOW LQFP 10X10"}, {"partNumber": "1M999788001EB", "partNo": "JEDEC/LOW LQFP 10X10"}, {"partNumber": "17B12037001LE", "partNo": "KBG105105 7.57 0102 12"}, {"partNumber": "17B12037002LE", "partNo": "KBG105105 7.57 0102 12"}, {"partNumber": "17B12040001LE", "partNo": "KBG105X90 6.25 0103 12"}, {"partNumber": "17B12039001LE", "partNo": "KBG120120 7.49 0102 12"}, {"partNumber": "17B42003001LE", "partNo": "KBG120X126 8.39 0102 42"}, {"partNumber": "17B42003002LE", "partNo": "KBG120X126 8.39 0102 42"}, {"partNumber": "17B42003003LE", "partNo": "KBG120X126 8.39 0102 42"}, {"partNumber": "17B42003004LE", "partNo": "KBG120X126 8.39 0102 42"}, {"partNumber": "17B42003005LE", "partNo": "KBG120X126 8.39 0102 42"}, {"partNumber": "17B42005001LE", "partNo": "KBG120X130 8.38 0102 42"}, {"partNumber": "17B12035001LE", "partNo": "KBG23X19 3.78 0413 12"}, {"partNumber": "17B12033001LE", "partNo": "KBG6560 5.12 0104 12"}, {"partNumber": "17B12033002LE", "partNo": "KBG6560 5.12 0104 12"}, {"partNumber": "17B12033003LE", "partNo": "KBG6560 5.12 0104 12"}, {"partNumber": "17B12041001LE", "partNo": "KBG7070 5.62 0104 12"}, {"partNumber": "17B12032001LE", "partNo": "KBG72.5X72.5 6.06 0103 12"}, {"partNumber": "17B12032002LE", "partNo": "KBG72.5X72.5 6.06 0103 12"}, {"partNumber": "17B42002001LE", "partNo": "KBG73X71 1.91 0104 42"}, {"partNumber": "17B42002002LE", "partNo": "KBG73X71 1.91 0104 42"}, {"partNumber": "17B42002003LE", "partNo": "KBG73X71 1.91 0104 42"}, {"partNumber": "17B42001001LE", "partNo": "KBG73X71 4.03 0104 42"}, {"partNumber": "17B42001002LE", "partNo": "KBG73X71 4.03 0104 42"}, {"partNumber": "17B42001003LE", "partNo": "KBG73X71 4.03 0104 42"}, {"partNumber": "17B12036001LE", "partNo": "KBG77.5X90.8 5.69 0103 12"}, {"partNumber": "17B12031001LE", "partNo": "KBG82.5x72.5 7.41 0103 12"}, {"partNumber": "17B12031002LE", "partNo": "KBG82.5x72.5 7.41 0103 12"}, {"partNumber": "17B12038001LE", "partNo": "KBG8585 6.41 0103 12"}, {"partNumber": "17B42004001LE", "partNo": "KBG85X120 8.13 0102 42"}, {"partNumber": "17B42004002LE", "partNo": "KBG85X120 8.13 0102 42"}, {"partNumber": "17B12021001LE", "partNo": "KH BG6565 10.643 0103 12"}, {"partNumber": "17B12021002LE", "partNo": "KH BG6565 10.643 0103 12"}, {"partNumber": "17BP9016001LE", "partNo": "KH BG70.6X70 3.90 0104 9"}, {"partNumber": "1M999144000EB", "partNo": "KH BG70.6X70 3.90 0104 9"}, {"partNumber": "1M999165000EB", "partNo": "KH BG75X76 6.01 0103 9"}, {"partNumber": "1M999167000EB", "partNo": "KH BG77.5X77.5 3.82 0103 9"}, {"partNumber": "17B12025001LE", "partNo": "KH BG77.5X77.5 6.13 0103 12"}, {"partNumber": "1M999178000E", "partNo": "KH BG77.5X77.5 6.13 0103 12"}, {"partNumber": "1M999178001EB", "partNo": "KH BG77.5X77.5 6.13 0103 12"}, {"partNumber": "1M999178002E", "partNo": "KH BG77.5X77.5 6.13 0103 12"}, {"partNumber": "17B12010001LE", "partNo": "KH BG77.5X90.8 6.56 0103 12"}, {"partNumber": "17B12010002LE", "partNo": "KH BG77.5X90.8 6.56 0103 12"}, {"partNumber": "17B12010003LE", "partNo": "KH BG77.5X90.8 6.56 0103 12"}, {"partNumber": "17B12010004LE", "partNo": "KH BG77.5X90.8 6.56 0103 12"}, {"partNumber": "17B12010005LE", "partNo": "KH BG77.5X90.8 6.56 0103 12"}, {"partNumber": "17B12010006LE", "partNo": "KH BG77.5X90.8 6.56 0103 12"}, {"partNumber": "17B12009001LE", "partNo": "KH BG82.5X72.5 6.53 0103 12"}, {"partNumber": "17B12009002LE", "partNo": "KH BG82.5X72.5 6.53 0103 12"}, {"partNumber": "17B12009003LE", "partNo": "KH BG82.5X72.5 6.53 0103 12"}, {"partNumber": "17B12009004LE", "partNo": "KH BG82.5X72.5 6.53 0103 12"}, {"partNumber": "17BP9005001LE", "partNo": "KH BG85X110 6.23 0102 9"}, {"partNumber": "1M999185000EB", "partNo": "KH BG85X110 6.23 0102 9"}, {"partNumber": "1M999185001EB", "partNo": "KH BG85X110 6.23 0102 9"}, {"partNumber": "17B12008001LE", "partNo": "KH BG85x120 6.32 0102 12"}, {"partNumber": "17B12008002LE", "partNo": "KH BG85x120 6.32 0102 12"}, {"partNumber": "17B12007001LE", "partNo": "KH BG85x120 7.17 0102 12"}, {"partNumber": "17B12007002LE", "partNo": "KH BG85x120 7.17 0102 12"}, {"partNumber": "17B12007003LE", "partNo": "KH BG85X120 7.17 0102 12"}, {"partNumber": "17B12007004LE", "partNo": "KH BG85X120 7.17 0102 12"}, {"partNumber": "17B12007005LE", "partNo": "KH BG85x120 7.17 0102 12"}, {"partNumber": "17B12007006LE", "partNo": "KH BG85x120 7.17 0102 12"}, {"partNumber": "17B12007007LE", "partNo": "KH BG85x120 7.17 0102 12"}, {"partNumber": "1M999183000E", "partNo": "KH BG94X95 5.78 0102 9"}, {"partNumber": "1M999141000E", "partNo": "KH BG98X94 5.86 0102 12"}, {"partNumber": "1M999321000E", "partNo": "KH BGA62.5X62.5 4.99 0104 2"}, {"partNumber": "1M999225000EB", "partNo": "KH BGA70X70 5.30 0104 2"}, {"partNumber": "1M999225001EB", "partNo": "KH BGA70X70 5.30 0104 2"}, {"partNumber": "1M999216000EB", "partNo": "KH BGA77.5X90.5 5.83 0103 2"}, {"partNumber": "1M999216001EB", "partNo": "KH BGA77.5X90.5 5.83 0103 2"}, {"partNumber": "1M999216002EB", "partNo": "KH BGA77.5X90.5 5.83 0103 2"}, {"partNumber": "1M999224000E", "partNo": "KH BGA77.5X90.5 5.83 0103 2"}, {"partNumber": "1M999161000EB", "partNo": "KH LGA69.5X71 5.75 0104 12"}, {"partNumber": "1M999161001EB", "partNo": "KH LGA69.5X71 5.75 0104 12"}, {"partNumber": "17B12014001LE", "partNo": "KH MODULE67.5X67.5 6.48 0104 12"}, {"partNumber": "17B12014002LE", "partNo": "KH MODULE67.5X67.5 6.48 0104 12"}, {"partNumber": "1M999327000E", "partNo": "KH MODULE77.5X77.8 5.59 0103 2"}, {"partNumber": "1M999327001E", "partNo": "KH MODULE77.5X77.8 5.59 0103 2"}, {"partNumber": "1M999327002E", "partNo": "KH MODULE77.5X77.8 5.59 0103 2"}, {"partNumber": "17B12028001LE", "partNo": "KH MODULE80.5X92.5 5.65 0103 12"}, {"partNumber": "1M999145001E", "partNo": "KH MODULE80.5X92.5 5.65 0103 12"}, {"partNumber": "17B12044001LE", "partNo": "KMD10X9 5.1 0821 12 bL4"}, {"partNumber": "17B13003001LE", "partNo": "KMD17X12.5 5.64 0612 13 bL4"}, {"partNumber": "1M999203000EB", "partNo": "KX BG100X100 6.392 0102 9"}, {"partNumber": "1M999203001EB", "partNo": "KX BG100X100 6.392 0102 9"}, {"partNumber": "1M999319000E", "partNo": "KX BG100X72.5 4.99 0103 9"}, {"partNumber": "17B13265001G2LE", "partNo": "KX BG26.375X13.75 3.66 0418 13"}, {"partNumber": "1M999302000E", "partNo": "KX BG2929 4.29 0308 9"}, {"partNumber": "17B12034001LE", "partNo": "KX BG3131 3.83 0309 12 REV.A bL2"}, {"partNumber": "1M999496000EB", "partNo": "KX BG3131 3.83 0309 12 REV.A bL2"}, {"partNumber": "1M999496002E", "partNo": "KX BG3131 3.83 0309 12 REV.A bL2"}, {"partNumber": "1M999496001E", "partNo": "KX BG3131 3.83 0309 12REV.AbL2"}, {"partNumber": "1M999162000EB", "partNo": "KX BG3535 4.65 0307 12"}, {"partNumber": "1M999162001EB", "partNo": "KX BG3535 4.65 0307 12"}, {"partNumber": "1M999190000E", "partNo": "KX BG3535 4.72 0307 9"}, {"partNumber": "1M999168000EB", "partNo": "KX BG3535 4.90 0307 9"}, {"partNumber": "1M999186000E", "partNo": "KX BG3535 5.28 0307 9"}, {"partNumber": "17B12020001LE", "partNo": "KX BG4040 3.16 0206 12"}, {"partNumber": "1M999146000EB", "partNo": "KX BG4040 3.16 0206 12"}, {"partNumber": "1M999388000EB", "partNo": "KX BG4040 3.22 0206 9"}, {"partNumber": "1M999388001EB", "partNo": "KX BG4040 3.22 0206 9"}, {"partNumber": "17B13002001LE", "partNo": "KX BG4040 3.8 0206 13"}, {"partNumber": "1M999509000E", "partNo": "KX BG4040 3.8 0206 13"}, {"partNumber": "1M999606000E", "partNo": "KX BG4040 3.8 0206 13"}, {"partNumber": "1M999222000E", "partNo": "KX BG40X40 3.496 0206 9"}, {"partNumber": "1M999334000EB", "partNo": "KX BG42.5X42.5 3.66 0206 9"}, {"partNumber": "1M999334001EB", "partNo": "KX BG42.5X42.5 3.66 0206 9"}, {"partNumber": "17B13006001LE", "partNo": "KX BG5050 3.8 0205"}, {"partNumber": "1M999233000E", "partNo": "KX BG5050 4.44 0204 9"}, {"partNumber": "17B08538004LEB", "partNo": "KX BG52.5X52.5 3.0 0205 8bL2"}, {"partNumber": "1M999311000EB", "partNo": "KX BG52.5X52.5 3.0 0205 9bL2"}, {"partNumber": "1M999431000E", "partNo": "KX BG52.5X52.5 4.3 0205 13"}, {"partNumber": "17B12029001LE", "partNo": "KX BG52.5X52.5 5.11 0205 12"}, {"partNumber": "1M999147000E", "partNo": "KX BG52.5X52.5 5.11 0205 12"}, {"partNumber": "17BP9011001LE", "partNo": "KX BG5555 5.21 0205 9 REV.B bL4"}, {"partNumber": "1M999515000E", "partNo": "KX BG5555 5.21 0205 9 REV.B bL4"}, {"partNumber": "1M999515001E", "partNo": "KX BG5555 5.21 0205 9 REV.B bL4"}, {"partNumber": "1M999323000E", "partNo": "KX BG5555 5.23 0204 9"}, {"partNumber": "1M999358000EB", "partNo": "KX BG5555 5.23 0204 9"}, {"partNumber": "17B12016001LE", "partNo": "KX BG56X70 5.91 0203 12"}, {"partNumber": "1M999143000E", "partNo": "KX BG56X70 5.91 0203 12"}, {"partNumber": "1M999565000EB", "partNo": "KX BG6060 2.95 0204 9"}, {"partNumber": "1M999565001EB", "partNo": "KX BG6060 2.95 0204 9"}, {"partNumber": "1M999565003EB", "partNo": "KX BG6060 2.95 0204 9"}, {"partNumber": "1M999434000EB", "partNo": "KX BG6060 4.73 0204 9"}, {"partNumber": "1M999434001E", "partNo": "KX BG6060 4.73 0204 9"}, {"partNumber": "1M999434001EB", "partNo": "KX BG6060 4.73 0204 9"}, {"partNumber": "1M999434002EB", "partNo": "KX BG6060 4.73 0204 9"}, {"partNumber": "1M999434003EB", "partNo": "KX BG6060 4.73 0204 9"}, {"partNumber": "1M999434004EB", "partNo": "KX BG6060 4.73 0204 9"}, {"partNumber": "17BP9009001LE", "partNo": "KX BG6060 4.91 0204 9"}, {"partNumber": "1M999290000EB", "partNo": "KX BG6060 4.91 0204 9"}, {"partNumber": "1M999290001E", "partNo": "KX BG6060 4.91 0204 9"}, {"partNumber": "1M999160000EB", "partNo": "KX BG6060 5.06 0204 12"}, {"partNumber": "1M999250000E", "partNo": "KX BG60X72.5 5.10 0203 9"}, {"partNumber": "1M999250001EB", "partNo": "KX BG60X72.5 5.10 0203 9"}, {"partNumber": "17B06003001LE", "partNo": "KX BG62.5X62.5 5.0 0104 6"}, {"partNumber": "17B06003002LE", "partNo": "KX BG62.5X62.5 5.0 0104 6"}, {"partNumber": "17B06003003LE", "partNo": "KX BG62.5X62.5 5.0 0104 6"}, {"partNumber": "17BP9002001LE", "partNo": "KX BG65X65 5.45 0104 9"}, {"partNumber": "17BP9002002LE", "partNo": "KX BG65X65 5.45 0104 9"}, {"partNumber": "1M999404000E", "partNo": "KX BG65X65 5.45 0104 9"}, {"partNumber": "1M999404001E", "partNo": "KX BG65X65 5.45 0104 9"}, {"partNumber": "1M999404002E", "partNo": "KX BG65X65 5.45 0104 9"}, {"partNumber": "1M999425000EB", "partNo": "KX BG65X65 5.45 0104 9"}, {"partNumber": "17BP9006001LE", "partNo": "KX BG67.5X67.5 4.12 0104 9"}, {"partNumber": "1M999280000E", "partNo": "KX BG67.5X67.5 4.12 0104 9"}, {"partNumber": "1M999280001E", "partNo": "KX BG67.5X67.5 4.12 0104 9"}, {"partNumber": "1M999280002E", "partNo": "KX BG67.5X67.5 4.12 0104 9"}, {"partNumber": "17BP60123006LE", "partNo": "KX BG67.5X67.5 4.9 0104 6 REV.A"}, {"partNumber": "17BP60123007LE", "partNo": "KX BG67.5X67.5 4.9 0104 6 REV.A"}, {"partNumber": "17BP9012001LE", "partNo": "KX BG67X77 4.94 0103 9"}, {"partNumber": "1M999423000EB", "partNo": "KX BG67X77 4.94 0103 9"}, {"partNumber": "1M999423001E", "partNo": "KX BG67X77 4.94 0103 9"}, {"partNumber": "1M999423001EB", "partNo": "KX BG67X77 4.94 0103 9"}, {"partNumber": "1M999423002EB", "partNo": "KX BG67X77 4.94 0103 9"}, {"partNumber": "1M999188000EB", "partNo": "KX BG69X71 1.69 0104 9"}, {"partNumber": "1M999188001EB", "partNo": "KX BG69X71 1.69 0104 9"}, {"partNumber": "1M999188002EB", "partNo": "KX BG69X71 1.69 0104 9"}, {"partNumber": "1M999188003EB", "partNo": "KX BG69X71 1.69 0104 9"}, {"partNumber": "1M999189000EB", "partNo": "KX BG69X71 3.76 0104 9"}, {"partNumber": "1M999189001EB", "partNo": "KX BG69X71 3.76 0104 9"}, {"partNumber": "1M999189002EB", "partNo": "KX BG69X71 3.76 0104 9"}, {"partNumber": "1M999189003EB", "partNo": "KX BG69X71 3.76 0104 9"}, {"partNumber": "1M999189004EB", "partNo": "KX BG69X71 3.76 0104 9"}, {"partNumber": "1M999454000E", "partNo": "KX BG70.6X70 1.23 0104 9"}, {"partNumber": "1M999455000EB", "partNo": "KX BG70.6X70 3.12 0104 9REV.A"}, {"partNumber": "1M999455001EB", "partNo": "KX BG70.6X70 3.12 0104 9REV.A"}, {"partNumber": "1M999455002EB", "partNo": "KX BG70.6X70 3.12 0104 9REV.A"}, {"partNumber": "1M999309000EB", "partNo": "KX BG70.6X70 3.38 0104 9"}, {"partNumber": "1M999309001EB", "partNo": "KX BG70.6X70 3.38 0104 9"}, {"partNumber": "1M999309002EB", "partNo": "KX BG70.6X70 3.38 0104 9"}, {"partNumber": "1M999309003EB", "partNo": "KX BG70.6X70 3.38 0104 9"}, {"partNumber": "1M999309004EB", "partNo": "KX BG70.6X70 3.38 0104 9"}, {"partNumber": "1M999309005EB", "partNo": "KX BG70.6X70 3.38 0104 9"}, {"partNumber": "1M999205000E", "partNo": "KX BG7070 5.7 0104 9"}, {"partNumber": "1M999205001E", "partNo": "KX BG7070 5.7 0104 9"}, {"partNumber": "1M999407000E", "partNo": "KX BG71.5X66 3.4 0104 13"}, {"partNumber": "17B13239001G2LE", "partNo": "KX BG72X65 4.32 0104 13"}, {"partNumber": "17B13239002G2LE", "partNo": "KX BG72X65 4.32 0104 13"}, {"partNumber": "1M999556000EB", "partNo": "KX BG7474 5.2 0103 13"}, {"partNumber": "1M999556001EB", "partNo": "KX BG7474 5.2 0103 13"}, {"partNumber": "1M999556002EB", "partNo": "KX BG7474 5.2 0103 13"}, {"partNumber": "1M999226000E", "partNo": "KX BG76.5X90 5.88 0103 9"}, {"partNumber": "17BP9013001LE", "partNo": "KX BG78X72 3.36 0104 9"}, {"partNumber": "1M999465000E", "partNo": "KX BG78X72 4.57 0104 9"}, {"partNumber": "1M999392000E", "partNo": "KX BG78X72 4.74 0104 9"}, {"partNumber": "1M999392001E", "partNo": "KX BG78X72 4.74 0104 9"}, {"partNumber": "1M999220000EB", "partNo": "KX BG79.1X76.3 1.975 0103 9"}, {"partNumber": "1M999223000E", "partNo": "KX BG79.1X76.3 3.895 0103 9"}, {"partNumber": "1M999266000EB", "partNo": "KX BG80X70 5.29 0104 9"}, {"partNumber": "1M999266001E", "partNo": "KX BG80X70 5.29 0104 9"}, {"partNumber": "1M999266001EB", "partNo": "KX BG80X70 5.29 0104 9"}, {"partNumber": "1M999266002EB", "partNo": "KX BG80X70 5.29 0104 9"}, {"partNumber": "1M999266003EB", "partNo": "KX BG80X70 5.29 0104 9"}, {"partNumber": "1M999389000E", "partNo": "KX BG8585 4.88 0103 9"}, {"partNumber": "1M999389001E", "partNo": "KX BG8585 4.88 0103 9"}, {"partNumber": "1M999477000EB", "partNo": "KX BG8585 5.26 0103 8REV.A BL4"}, {"partNumber": "1M999477001E", "partNo": "KX BG8585 5.26 0103 8REV.A BL4"}, {"partNumber": "1M999477001EB", "partNo": "KX BG8585 5.26 0103 8REV.A BL4"}, {"partNumber": "17B12017001LE", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "17B12017002LE", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "1M999164000E", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "1M999164001E", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "1M999164002E", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "1M999164003EB", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "1M999164004E", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "1M999164005E", "partNo": "KX BG87.5X72.5 5.10 0103 12 REV.A"}, {"partNumber": "17BP9004001LE", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267000EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267001EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267002EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267003E", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267003EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267004EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267005EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267006EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267007EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267009EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267010EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267011EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267012EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267013EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267014EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267015EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267016EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999267017EB", "partNo": "KX BG87.5X72.5 5.10 0103 9"}, {"partNumber": "1M999282000E", "partNo": "KX BG95X97.3 5.14 0102 9"}, {"partNumber": "1M999285000E", "partNo": "KX BGA100X100 5.71 0102 2"}, {"partNumber": "1M999285001E", "partNo": "KX BGA100X100 5.71 0102 2"}, {"partNumber": "17B12011001LE", "partNo": "KX BGA110110 6.27 0102 12"}, {"partNumber": "17B12019002LE", "partNo": "KX BGA120X130 6.56 0102 12"}, {"partNumber": "17B12018001LE", "partNo": "KX BGA120X130 7.38 0102 12"}, {"partNumber": "17B12018002LE", "partNo": "KX BGA120X130 7.38 0102 12"}, {"partNumber": "17B12015001LE", "partNo": "KX BGA120X140 9.81 0102 12"}, {"partNumber": "1M999229000EB", "partNo": "KX BGA35X35 5.61 0308 2"}, {"partNumber": "1M999229001EB", "partNo": "KX BGA35X35 5.61 0308 2"}, {"partNumber": "1M999229003E", "partNo": "KX BGA35X35 5.61 0308 2"}, {"partNumber": "1M999268001EB", "partNo": "KX BGA37.5X37.5 3.74 0307 2"}, {"partNumber": "1M999268002E", "partNo": "KX BGA37.5X37.5 3.74 0307 2"}, {"partNumber": "1M999268002EB", "partNo": "KX BGA37.5X37.5 3.74 0307 2"}, {"partNumber": "1M999268003EB", "partNo": "KX BGA37.5X37.5 3.74 0307 2"}, {"partNumber": "1M999268004EB", "partNo": "KX BGA37.5X37.5 3.74 0307 2"}, {"partNumber": "1M999274000E", "partNo": "KX BGA47.5X47.5 2.56 0206 2"}, {"partNumber": "1M999303000E", "partNo": "KX BGA47.5X47.5 2.56 0206 2"}, {"partNumber": "1M999238000EB", "partNo": "KX BGA50X50 5.31 0205 2"}, {"partNumber": "1M999316000E", "partNo": "KX BGA55X55 4.80 0205 2"}, {"partNumber": "1M999316001E", "partNo": "KX BGA55X55 4.80 0205 2"}, {"partNumber": "1M999275000E", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999275001EB", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999275002E", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999275003E", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999275004E", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999275005E", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999292000EB", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "1M999297000E", "partNo": "KX BGA57.5X57.5 5.28 0205 2"}, {"partNumber": "17B13251001G2LEB", "partNo": "KX LGA9191 4.6 0103 13BL4"}, {"partNumber": "17B13251002G2LE", "partNo": "KX LGA9191 4.6 0103 13BL4"}, {"partNumber": "1M999251000E", "partNo": "KX MODULE100X100 5.90 0102 2"}, {"partNumber": "1M999256000E", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "1M999256001EB", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "1M999256002EB", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "1M999256003EB", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "1M999256004E", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "1M999256005E", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "1M999256006E", "partNo": "KX MODULE77.5X85.0 5.51 0103 2"}, {"partNumber": "17B02001001LE", "partNo": "KX MODULE77.8X77.5 5.36 0103 2"}, {"partNumber": "17B02001002LE", "partNo": "KX MODULE77.8X77.5 5.36 0103 2"}, {"partNumber": "1M999201001E", "partNo": "KX MODULE77.8X77.5 5.36 0103 2"}, {"partNumber": "17B05010001LE", "partNo": "N/V MODULE 14.00X19.73 0.73T (Assembly)"}, {"partNumber": "17B05013001LE", "partNo": "N/V MODULE-1 14.00X19.73 0.73T (Assembly"}, {"partNumber": "17BP6590007G1E", "partNo": "ND 0707 1.4 1025 6REV.B"}, {"partNumber": "17B06004001LE", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "17BP6134000G2LEB", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "17BP6134004G2LE", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "1M999181000EB", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "1M999181002EB", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "1M999181003EB", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "1M999181004E", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "1M999181001EB", "partNo": "ND 0707 1.4 1025 6REV.H"}, {"partNumber": "17BP6856012G2LE", "partNo": "ND 1010 1.4 0820 6REV.C"}, {"partNumber": "17BP6856013G2LE", "partNo": "ND 1010 1.4 0820 6REV.C"}, {"partNumber": "17B06627008G2LEB", "partNo": "ND 1010 1.4 0820 6REV.CbL2"}, {"partNumber": "17B06627018G2LEB", "partNo": "ND 1010 1.4 0820 6REV.CbL2"}, {"partNumber": "17B06627019G2LE", "partNo": "ND 1010 1.4 0820 6REV.CbL2"}, {"partNumber": "1M999968000EB", "partNo": "NH BG1414 1.28 0717"}, {"partNumber": "1M999968001EB", "partNo": "NH BG1414 1.28 0717"}, {"partNumber": "1M999968002E", "partNo": "NH BG1414 1.28 0717"}, {"partNumber": "1M999968003E", "partNo": "NH BG1414 1.28 0717"}, {"partNumber": "17BP60066001G2LEB", "partNo": "NH BG1717 1.0 0615"}, {"partNumber": "17BP60066002G2LEB", "partNo": "NH BG1717 1.0 0615"}, {"partNumber": "1M999584000E", "partNo": "NH BG1717 1.0 0615"}, {"partNumber": "1M999584001E", "partNo": "NH BG1717 1.0 0615"}, {"partNumber": "1M999584002E", "partNo": "NH BG1717 1.0 0615"}, {"partNumber": "1M999584003E", "partNo": "NH BG1717 1.0 0615"}, {"partNumber": "1M999895000EB", "partNo": "NH BG1717 2.80 0615 6 REV.A"}, {"partNumber": "1M999895001EB", "partNo": "NH BG1717 2.80 0615 6 REV.A"}, {"partNumber": "1M999895002EB", "partNo": "NH BG1717 2.80 0615 6 REV.A"}, {"partNumber": "1M999895003EB", "partNo": "NH BG1717 2.80 0615 6 REV.A"}, {"partNumber": "17B06005001LE", "partNo": "NH BG1717 2.80 0615 6REV.A"}, {"partNumber": "1M999895001E", "partNo": "NH BG1717 2.80 0615 6REV.A"}, {"partNumber": "1M999895004E", "partNo": "NH BG1717 2.80 0615 6REV.A"}, {"partNumber": "1M999474000E", "partNo": "NH BG2121 2.3 0512 6REV.A"}, {"partNumber": "1M999245000EB", "partNo": "NH BG2929 2.0 0409 REV.A"}, {"partNumber": "1M999245001EB", "partNo": "NH BG2929 2.0 0409 REV.A"}, {"partNumber": "1M999245002EB", "partNo": "NH BG2929 2.0 0409 REV.A"}, {"partNumber": "17B06006001LE", "partNo": "NH BG3131 2.2 0309 6 REV.B"}, {"partNumber": "1M999375000EB", "partNo": "NX BG1010 1.25 0820 9"}, {"partNumber": "1M999375001E", "partNo": "NX BG1010 1.25 0820 9"}, {"partNumber": "1M999375002E", "partNo": "NX BG1010 1.25 0820 9"}, {"partNumber": "17B06002001LE", "partNo": "NX BG1414 1.4 0717"}, {"partNumber": "17BP6129009G2LEB", "partNo": "NX BG1414 1.4 0717"}, {"partNumber": "1M999380000E", "partNo": "NX BG1414 1.4 0717"}, {"partNumber": "1M999380001E", "partNo": "NX BG1414 1.4 0717"}, {"partNumber": "1M999443000EB", "partNo": "NX BG17.2X13.2 1.45 0618 8"}, {"partNumber": "1M999443001EB", "partNo": "NX BG17.2X13.2 1.45 0618 8"}, {"partNumber": "1M999443003E", "partNo": "NX BG17.2X13.2 1.45 0618 8"}, {"partNumber": "17BP6004004G2LE", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "17BP6004017G2LE", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243000EB", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243001EB", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243002E", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243003E", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243004E", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243005E", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243006E", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "1M999243007E", "partNo": "NX BG1919 1.0 0614 6"}, {"partNumber": "17BP6176007G2LE", "partNo": "NX BG1919 1.0 0614 REV.A"}, {"partNumber": "17BP6176014G2LE", "partNo": "NX BG1919 1.0 0614 REV.A"}, {"partNumber": "1M999240000EB", "partNo": "NX BG1919 1.0 0614 REV.A"}, {"partNumber": "1M999240001EB", "partNo": "NX BG1919 1.0 0614 REV.A"}, {"partNumber": "1M999242000E", "partNo": "NX BG2323 0.61 0512 6"}, {"partNumber": "17B06891012G2LE", "partNo": "NX BG2323 0.61 0512 6"}, {"partNumber": "1M999622000E", "partNo": "NX BG2323 1.34 0512 6"}, {"partNumber": "1M999622001E", "partNo": "NX BG2323 1.34 0512 6"}, {"partNumber": "1M999622002E", "partNo": "NX BG2323 1.34 0512 6"}, {"partNumber": "1M999852007E", "partNo": "NX BG2323 2.0 0512 REV.A"}, {"partNumber": "17BP60050005G2LE", "partNo": "NX BG2323 2.0 0512 REV.A"}, {"partNumber": "17BP60171001G2LE", "partNo": "NX BG2727 1.43 0410 6"}, {"partNumber": "17BP60171002G2LE", "partNo": "NX BG2727 1.43 0410 6"}, {"partNumber": "17B06947007G2LE", "partNo": "NX BG3131 1.57 0309 6"}, {"partNumber": "1M999460000E", "partNo": "NX BG3131 1.57 0309 6"}, {"partNumber": "17B06001001LE", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "17BP6123010G2LE", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "17BP6123012G2LEB", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "1M999244000EB", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "1M999244001EB", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "1M999244002EB", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "1M999244003EB", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "1M999244004EB", "partNo": "NX BG3535 2.0 0308"}, {"partNumber": "17BP6098006G2LE", "partNo": "NX BG3535 2.8 0308 6"}, {"partNumber": "17BP6098007G2LEB", "partNo": "NX BG3535 2.8 0308 6"}, {"partNumber": "17BP6098011G2LE", "partNo": "NX BG3535 2.8 0308 6"}, {"partNumber": "1M999246000EB", "partNo": "NX BG3535 2.8 0308 6"}, {"partNumber": "1M999246001EB", "partNo": "NX BG3535 2.8 0308 6"}, {"partNumber": "1M999261000E", "partNo": "NX BG5060 1.2 0204 9"}, {"partNumber": "1M999308000EB", "partNo": "NX BG8.9X22.8 1.1 1012 9"}, {"partNumber": "1M999308001E", "partNo": "NX BG8.9X22.8 1.1 1012 9"}, {"partNumber": "1M999308001EB", "partNo": "NX BG8.9X22.8 1.1 1012 9"}, {"partNumber": "1M999308002E", "partNo": "NX BG8.9X22.8 1.1 1012 9"}, {"partNumber": "1M999308002EB", "partNo": "NX BG8.9X22.8 1.1 1012 9"}, {"partNumber": "1M999308003EB", "partNo": "NX BG8.9X22.8 1.1 1012 9"}, {"partNumber": "17B39003001LE", "partNo": "NX BGA11X9.5 1.5 0821 39X"}, {"partNumber": "17B02003001LE", "partNo": "NX BGA52.5X52.5 1.99 0205 2"}, {"partNumber": "1M999324000E", "partNo": "NX BGA52.5X52.5 1.99 0205 2"}, {"partNumber": "1M999135000E", "partNo": "NX LGA5.75X5.75 1.3 1230 39X"}, {"partNumber": "17B39002001LE", "partNo": "NX OLGA3.2X5 1.22 1435 39X"}, {"partNumber": "1M999191000EB", "partNo": "NX PIM7.65X6.8 3.77 1026 9"}, {"partNumber": "1M999191001EB", "partNo": "NX PIM7.65X6.8 3.77 1026 9"}, {"partNumber": "1M999287000EB", "partNo": "NX QFN6X6.5 1.3 1326 8"}, {"partNumber": "1M999378000EB", "partNo": "NX QFN6X6.5 1.3 1326 9"}, {"partNumber": "1M999378001E", "partNo": "NX QFN6X6.5 1.3 1326 9"}, {"partNumber": "17B22004001LE", "partNo": "TBG0714 0.84 1017 22"}, {"partNumber": "17B22004002LE", "partNo": "TBG0714 0.84 1017 22"}, {"partNumber": "17B22004003LE", "partNo": "TBG0714 0.84 1017 22"}, {"partNumber": "17B08014001LE", "partNo": "TBG0714 0.84 1017 8"}, {"partNumber": "17B08014002LE", "partNo": "TBG0714 0.84 1017 8"}, {"partNumber": "17B12023001LE", "partNo": "TBG15.62X14.36 1.14 0614 12 RA bL4"}, {"partNumber": "17B12026001LE", "partNo": "TBG16.09X14.34 1.08 0616 12 bL4"}, {"partNumber": "17B12026002LE", "partNo": "TBG16.09X14.34 1.08 0616 12 bL4"}, {"partNumber": "17B12026003LE", "partNo": "TBG16.09X14.34 1.08 0616 12 bL4"}, {"partNumber": "17B12022001LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022002LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022003LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022004LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022005LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022006LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022007LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022008LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022009LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12022010LE", "partNo": "TBG16.61X14.79 1.08 0614 12 bL4"}, {"partNumber": "17B12024001LE", "partNo": "TBG18.83X17.53 0.94 0514 12 bL4"}, {"partNumber": "17B12027001LE", "partNo": "TBG3.69X3.79 0.54 1435 12"}, {"partNumber": "17B39004001LE", "partNo": "TBG6.1x6.1 1.0 1435 39X"}, {"partNumber": "17B12042001LE", "partNo": "TBG8.13X9.90 1.13 1021 12 bL4"}, {"partNumber": "17B12043001LE", "partNo": "TBG8.13X9.90 1.13 1021 12 RA bL4"}, {"partNumber": "17B32002001LE", "partNo": "TCSP14x12 0.94 0817 32X"}, {"partNumber": "1M999337000EB", "partNo": "TX BG0909 1.1 1026 9bL2"}, {"partNumber": "1M999337001EB", "partNo": "TX BG0909 1.1 1026 9bL2"}, {"partNumber": "17BP9003002G2LE", "partNo": "TX BG0911 0.7 1021 9"}, {"partNumber": "17B22002001LE", "partNo": "TX BG10X14.5 1.14 0816 22"}, {"partNumber": "17B22002002LE", "partNo": "TX BG10X14.5 1.14 0816 22"}, {"partNumber": "17B22002003LE", "partNo": "TX BG10X14.5 1.14 0816 22"}, {"partNumber": "1M999155000E", "partNo": "TX BG10X14.5 1.14 0816 22"}, {"partNumber": "1M999155001E", "partNo": "TX BG10X14.5 1.14 0816 22"}, {"partNumber": "17B08012001LE", "partNo": "TX BG10X14.5 1.14 0816 8"}, {"partNumber": "1M999338001EB", "partNo": "TX BG1111 1.1 0820 9bL2"}, {"partNumber": "1M999338002E", "partNo": "TX BG1111 1.1 0820 9bL2"}, {"partNumber": "1M999376000EB", "partNo": "TX BG1111 1.46 0820 9"}, {"partNumber": "1M999376001E", "partNo": "TX BG1111 1.46 0820 9"}, {"partNumber": "1M999376001EB", "partNo": "TX BG1111 1.46 0820 9"}, {"partNumber": "1M999212000EB", "partNo": "TX BG12.08X15.94 0.907 0714 9bL4"}, {"partNumber": "1M999166000EB", "partNo": "TX BG12.08X15.94 0.907 0814 9REV.AbL4"}, {"partNumber": "1M999166001EB", "partNo": "TX BG12.08X15.94 0.907 0814 9REV.AbL4"}, {"partNumber": "1M999166002EB", "partNo": "TX BG12.08X15.94 0.907 0814 9REV.AbL4"}, {"partNumber": "17B22001001LE", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "17B22001002LE", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "17B22001003LE", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "1M999207000E", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "1M999207001EB", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "1M999207002E", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "1M999207003E", "partNo": "TX BG12.4X12.4 1.2 0817 22"}, {"partNumber": "1M999179000E", "partNo": "TX BG12.4X12.4 1.2 0817 8"}, {"partNumber": "17B08010001LE", "partNo": "TX BG12.4X12.4 1.2 0817 8"}, {"partNumber": "1M999359000E", "partNo": "TX BG12.63X16.52 0.59 0714 22"}, {"partNumber": "1M999362000EB", "partNo": "TX BG12.63X16.52 0.59 0714 22"}, {"partNumber": "1M999466000E", "partNo": "TX BG12.68X15.88 0.9 0714 9bL4"}, {"partNumber": "1M999272000E", "partNo": "TX BG12.73X16.47 0.79 0714 9bL4"}, {"partNumber": "17BP9001001LE", "partNo": "TX BG12.78X14.93 1.02 0714 9bL4"}, {"partNumber": "17BP9001002LE", "partNo": "TX BG12.78X14.93 1.02 0714 9bL4"}, {"partNumber": "1M999328000E", "partNo": "TX BG12.7X9.2 0.78 0721 9bL4"}, {"partNumber": "1M999328001E", "partNo": "TX BG12.7X9.2 0.78 0721 9bL4"}, {"partNumber": "1M999357000E", "partNo": "TX BG12.81X16.7 0.92 0714 9bL4"}, {"partNumber": "1M999456000E", "partNo": "TX BG12.81X17.44 0.98 0714 9bL4"}, {"partNumber": "1M999451000E", "partNo": "TX BG12.93X17.16 0.89 0714 9bL4"}, {"partNumber": "1M999142000E", "partNo": "TX BG14.00X21.75 1.14 0612 9bL4"}, {"partNumber": "1M999363000EB", "partNo": "TX BG14.1X13 1.0 0616 22"}, {"partNumber": "1M999363001EB", "partNo": "TX BG14.1X13 1.0 0616 22"}, {"partNumber": "1M999363002EB", "partNo": "TX BG14.1X13 1.0 0616 22"}, {"partNumber": "1M999363003EB", "partNo": "TX BG14.1X13 1.0 0616 22"}, {"partNumber": "1M999283000E", "partNo": "TX BG14.1X17.81 0.89 0614 9bL4"}, {"partNumber": "1M999263000E", "partNo": "TX BG14.6X14.6 0.32 0614 9bL4"}, {"partNumber": "1M999331000E", "partNo": "TX BG14.6X14.6 0.91 0614 9bL4"}, {"partNumber": "1M999214000EB", "partNo": "TX BG14.7X14.5 0.53 0614 9bL4"}, {"partNumber": "1M999184000EB", "partNo": "TX BG14.7X14.5 1.16 0614 9 REV.A bL4"}, {"partNumber": "1M999184001EB", "partNo": "TX BG14.7X14.5 1.16 0614 9 REV.A bL4"}, {"partNumber": "1M999184002E", "partNo": "TX BG14.7X14.5 1.16 0614 9 REV.A bL4"}, {"partNumber": "1M999213000EB", "partNo": "TX BG14.7X14.5 1.16 0614 9bL4"}, {"partNumber": "1M999213001E", "partNo": "TX BG14.7X14.5 1.16 0614 9bL4"}, {"partNumber": "1M999213001EB", "partNo": "TX BG14.7X14.5 1.16 0614 9bL4"}, {"partNumber": "1M999213002EB", "partNo": "TX BG14.7X14.5 1.16 0614 9bL4"}, {"partNumber": "1M999248000E", "partNo": "TX BG1414 0.81 0717 9bL2"}, {"partNumber": "1M999248001E", "partNo": "TX BG1414 0.81 0717 9bL2"}, {"partNumber": "17BP9200001LE", "partNo": "TX BG1414 1.4 0717 9bL2"}, {"partNumber": "1M999339000EB", "partNo": "TX BG1414 1.4 0717 9bL2"}, {"partNumber": "1M999339001EB", "partNo": "TX BG1414 1.4 0717 9bL2"}, {"partNumber": "1M999498000E", "partNo": "TX BG14x12.4 0.67 0616 27"}, {"partNumber": "1M999498001E", "partNo": "TX BG14x12.4 0.67 0616 27"}, {"partNumber": "1M999498002E", "partNo": "TX BG14x12.4 0.67 0616 27"}, {"partNumber": "1M999498003E", "partNo": "TX BG14x12.4 0.67 0616 27"}, {"partNumber": "1M999498004E", "partNo": "TX BG14x12.4 0.67 0616 27"}, {"partNumber": "1M999507000E", "partNo": "TX BG14x12.4 0.67 0616 8"}, {"partNumber": "1M999153000E", "partNo": "TX BG15.62X14.36 1.14 0614 9bL4"}, {"partNumber": "1M999153001E", "partNo": "TX BG15.62X14.36 1.14 0614 9bL4"}, {"partNumber": "17BP6169001G2LEB", "partNo": "TX BG1515 1.2 0717 REV.A"}, {"partNumber": "17BP6169002G2LE", "partNo": "TX BG1515 1.2 0717 REV.A"}, {"partNumber": "17BP6169003G2LE", "partNo": "TX BG1515 1.2 0717 REV.A"}, {"partNumber": "17BP6169006G2LE", "partNo": "TX BG1515 1.2 0717 REV.A"}, {"partNumber": "17BP9201001LE", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "17BP9201002LE", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "17BP9201003LE", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "17BP9201004LE", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "1M999154000EB", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "1M999154001EB", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "1M999154002EB", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "1M999154003EB", "partNo": "TX BG16.65X14.83 1.08 0614 9bL4"}, {"partNumber": "1M999187000EB", "partNo": "TX BG17.08X16.19 0.91 0614 9bL4"}, {"partNumber": "1M999247000E", "partNo": "TX BG1818 0.82 0512 9bL2"}, {"partNumber": "1M999247001E", "partNo": "TX BG1818 0.82 0512 9bL2"}, {"partNumber": "17B32001001LE", "partNo": "TX BG1818 1.24 0614 32"}, {"partNumber": "1M999192000E", "partNo": "TX BG1818 1.24 0614 32"}, {"partNumber": "1M999192001E", "partNo": "TX BG1818 1.24 0614 32"}, {"partNumber": "1M999192002E", "partNo": "TX BG1818 1.24 0614 32"}, {"partNumber": "1M999192003E", "partNo": "TX BG1818 1.24 0614 32"}, {"partNumber": "1M999527000EB", "partNo": "TX BG22.25X15.05 0.76 0517 13bL4"}, {"partNumber": "1M999428000EB", "partNo": "TX BG27.5X12 2.3 0419 9"}, {"partNumber": "1M999279000E", "partNo": "TX BG3.6X4.1 1.0 1435 9bL2"}, {"partNumber": "17B13001001LE", "partNo": "TX BG3131 2.05 0309 13bL2"}, {"partNumber": "1M999252000E", "partNo": "TX BG3131 2.05 0309 13bL2"}, {"partNumber": "1M999252001E", "partNo": "TX BG3131 2.05 0309 13bL2"}, {"partNumber": "1M999252002E", "partNo": "TX BG3131 2.05 0309 13bL2"}, {"partNumber": "1M999252003E", "partNo": "TX BG3131 2.05 0309 13bL2"}, {"partNumber": "1M999255000E", "partNo": "TX BG3131 2.05 0309 1-SR1"}, {"partNumber": "1M999313000E", "partNo": "TX BG3131 2.05 0309 9bL2"}, {"partNumber": "1M999313001EB", "partNo": "TX BG3131 2.05 0309 9bL2"}, {"partNumber": "1M999313002E", "partNo": "TX BG3131 2.05 0309 9bL2"}, {"partNumber": "1M999148000E", "partNo": "TX BG35X25 0.65 0407 39X"}, {"partNumber": "1M999172000E", "partNo": "TX BG4.4X4.4 1.0 1435 1-SR2"}, {"partNumber": "1M999429000EB", "partNo": "TX BG4.4X4.4 1.0 1435 9bL2"}, {"partNumber": "1M999429001E", "partNo": "TX BG4.4X4.4 1.0 1435 9bL2"}, {"partNumber": "1M999429002E", "partNo": "TX BG4.4X4.4 1.0 1435 9bL2"}, {"partNumber": "1M999200000E", "partNo": "TX BG6.2X11.4 0.94 1020 8"}, {"partNumber": "1M999180000E", "partNo": "TX BG6.2X12.6 1.20 1020 22"}, {"partNumber": "1M999180001E", "partNo": "TX BG6.2X12.6 1.20 1020 22"}, {"partNumber": "1M999180002E", "partNo": "TX BG6.2X12.6 1.20 1020 22"}, {"partNumber": "1M999180003E", "partNo": "TX BG6.2X12.6 1.20 1020 22"}, {"partNumber": "1M999180004E", "partNo": "TX BG6.2X12.6 1.20 1020 22"}, {"partNumber": "1M999169000E", "partNo": "TX BG6.2X12.6 1.20 1020 8"}, {"partNumber": "1M999169001E", "partNo": "TX BG6.2X12.6 1.20 1020 8"}, {"partNumber": "1M999217000E", "partNo": "TX BG6.4X6.4 1.0 1026 13bL2"}, {"partNumber": "1M999217001E", "partNo": "TX BG6.4X6.4 1.0 1026 13bL2"}, {"partNumber": "17B22003001LE", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "17B22003002LE", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999310000EB", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999310001EB", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999310002EB", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999310003EB", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999310004EB", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999310005EB", "partNo": "TX BG7.2X12.4 1.0 1017 22"}, {"partNumber": "1M999305000E", "partNo": "TX BG7.2X12.4 1.0 1017 8"}, {"partNumber": "17B22005001LE", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "1M999194000EB", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "1M999194001E", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "1M999194001EB", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "1M999194002EB", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "1M999194003EB", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "1M999194004EB", "partNo": "TX BG7.5X11 1.16 1021 22"}, {"partNumber": "17B08617002LE", "partNo": "TX BG7.5X11 1.16 1021 8"}, {"partNumber": "1M999265000EB", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "1M999265001E", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "1M999265001EB", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "1M999265002EB", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "1M999265003EB", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "1M999265004EB", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "17B22006001LE", "partNo": "TX BG7.5X11.5 1.0 1019 22"}, {"partNumber": "1M999264000E", "partNo": "TX BG7.5X11.5 1.0 1019 8"}, {"partNumber": "1M999176000E", "partNo": "TX BG7.5X13.5 1.20 1018 22"}, {"partNumber": "1M999176001E", "partNo": "TX BG7.5X13.5 1.20 1018 22"}, {"partNumber": "1M999176002E", "partNo": "TX BG7.5X13.5 1.20 1018 22"}, {"partNumber": "17BP6222004G2LEB", "partNo": "TX BG7.8X7.8 0.55 1026"}, {"partNumber": "17BP6222005G2LE", "partNo": "TX BG7.8X7.8 0.55 1026"}, {"partNumber": "1M999163000EB", "partNo": "TX BG8.93X14.26 0.81 1016 9bL4"}, {"partNumber": "1M999276000E", "partNo": "TX BG8X12.4 1.2 1017 22"}, {"partNumber": "1M999276001E", "partNo": "TX BG8X12.4 1.2 1017 22"}, {"partNumber": "1M999276002E", "partNo": "TX BG8X12.4 1.2 1017 22"}, {"partNumber": "1M999276003E", "partNo": "TX BG8X12.4 1.2 1017 22"}, {"partNumber": "1M999346000E", "partNo": "TX BG9.16X15.93 0.75 0814 9bL4"}, {"partNumber": "17B08539003LE", "partNo": "TX BG9.57X8.57 0.56 1021 8 REV.A"}, {"partNumber": "17B08539001LE", "partNo": "TX BG9.57X8.57 0.56 1021 8 REV.AbL4"}, {"partNumber": "17B02002001LE", "partNo": "TX BG9X11 0.8 1021 2"}, {"partNumber": "1M999202000EB", "partNo": "TX BG9X11 0.8 1021 2"}, {"partNumber": "1M999202001EB", "partNo": "TX BG9X11 0.8 1021 2"}, {"partNumber": "1M999202002EB", "partNo": "TX BG9X11 0.8 1021 2"}, {"partNumber": "1M999502000EB", "partNo": "TX BGA0606 1.0 1435 9 REV.M bL2"}, {"partNumber": "1M999502001EB", "partNo": "TX BGA0606 1.0 1435 9 REV.M bL2"}, {"partNumber": "1M999502002E", "partNo": "TX BGA0606 1.0 1435 9 REV.M bL2"}, {"partNumber": "1M999502003EB", "partNo": "TX BGA0606 1.0 1435 9 REV.M bL2"}, {"partNumber": "1M999502004EB", "partNo": "TX BGA0606 1.0 1435 9 REV.M bL2"}, {"partNumber": "1M999502005E", "partNo": "TX BGA0606 1.0 1435 9REV.MbL2"}, {"partNumber": "17B08009001LE", "partNo": "TX CSP1.535X1.865 0.62 1435 8bL2"}, {"partNumber": "17B08011002LE", "partNo": "TX CSP1.535X2.2 0.62 1435 8 bL2"}, {"partNumber": "17B08011003LE", "partNo": "TX CSP1.535X2.2 0.62 1435 8 bL2"}, {"partNumber": "17B12030001LE", "partNo": "TX CSP2.49X2.58 0.37 1435 12 bR2"}, {"partNumber": "17B05079001LE", "partNo": "TX LGA14X14 2.7 0717 39X"}, {"partNumber": "1M999491000EB", "partNo": "TX LGA5.9x7.9 0.58 1426 9bL2"}, {"partNumber": "1M999492000EB", "partNo": "TX LGA6X6.4 0.58 1426 9bL2"}, {"partNumber": "17B05082001LE", "partNo": "TX LGA6X6.4 0.58 1426 9bL2 (BLUE P-BIN)"}, {"partNumber": "1M999157000EB", "partNo": "TX OLGA2.13X2.08 0.6 1235 32X"}, {"partNumber": "1M999174000E", "partNo": "TX OLGA2.13X2.08 0.628 1235 39X"}, {"partNumber": "1M999449000EB", "partNo": "TX PIM2.95X4.07 0.8 1435 9bL2"}, {"partNumber": "1M999449001E", "partNo": "TX PIM2.95X4.07 0.8 1435 9bL2"}, {"partNumber": "1M999449001EB", "partNo": "TX PIM2.95X4.07 0.8 1435 9bL2"}, {"partNumber": "1M999449002E", "partNo": "TX PIM2.95X4.07 0.8 1435 9bL2"}, {"partNumber": "1M999382000EB", "partNo": "TX PIM6.5X10 1.42 1020 9bL2"}, {"partNumber": "17BP9008002LEB", "partNo": "TX PIM7.3X11 1.35 1020 9bL2"}, {"partNumber": "17BP9008004LE", "partNo": "TX PIM7.3X11 1.35 1020 9bL2"}, {"partNumber": "1M999237000E", "partNo": "TX PIM8X12.5 1.37 1017 9bL2"}, {"partNumber": "1M999273001E", "partNo": "TX QFN0202 0.8 1435 9bL2"}, {"partNumber": "17BP9017001LE", "partNo": "TX QFN0404 0.6 1435 9REV.AbL2"}, {"partNumber": "17BP9010001LE", "partNo": "TX QFN0405 0.6 1435 9bL2"}, {"partNumber": "1M999139000E", "partNo": "TX QFN0807 0.8 1026 39X"}, {"partNumber": "1M999462000E", "partNo": "TX QFN0909 1.0 1026 6REV.B"}, {"partNumber": "1M999462001E", "partNo": "TX QFN0909 1.0 1026 6REV.B"}, {"partNumber": "1M999462002E", "partNo": "TX QFN0909 1.0 1026 6REV.B"}, {"partNumber": "17BP6250001G2LEB", "partNo": "TX QFN12X11 0.8 0821"}, {"partNumber": "17BP6250004G2LE", "partNo": "TX QFN12X11 0.8 0821"}, {"partNumber": "17BP6250005G2LE", "partNo": "TX QFN12X11 0.8 0821"}, {"partNumber": "17BP6250006G2LE", "partNo": "TX QFN12X11 0.8 0821"}, {"partNumber": "1M999464001E", "partNo": "TX QFN2.6X2.6 0.68 1640 9REV.AbL2"}, {"partNumber": "1M999464002E", "partNo": "TX QFN2.6X2.6 0.68 1640 9REV.AbL2"}];
+    const TRANSLATIONS = {
+      ko: {
+        appTitle: "射出成型條件表 관리", tabInput: "입력", tabRecords: "조회", tabBackup: "저장", tabParts: "Part 관리",
+        basicInfo: "기본 정보", partNumber: "Part Number", partNo: "料號 / 품번", machine: "機台 / 기계", moldNo: "模號 / 금형번호", date: "日期 / 날짜", runType: "구분",
+        barrelTemp: "料管溫度 / 료관 온도", closeOpen: "關模 / 開模", melt: "熔膠 / 계량", timeWeight: "시간 / 중량 / 특성", moldPressure: "금형 / 압법",
+        bendSketchTitle: "彎曲示意圖(冷卻完)", bendSketchLabel: "냉각 후 휨 상태 메모", bendSketchPlaceholder: "도식 또는 휨 방향/상태를 간단히 기록",
+        injection: "射出 / 사출", holding: "保壓 / 보압", ejector: "頂針 / 이젝터", switchSetting: "保壓切換設置 / 보압 전환", dimensions: "EL / OL / OW 치수",
+        technicianNotes: "기술원 / 비고", technician: "技術員 / 기술원", notes: "備註 / 비고",
+        clear: "초기화", save: "저장", updateSave: "수정 저장", editing: "수정 중", newRecord: "새 입력", copyLast: "마지막 복사", print: "인쇄", deleteAll: "전체 삭제",
+        search: "검색", searchPlaceholder: "Part Number, 품번, 기계, 금형번호, 기술원, 비고", filterDate: "날짜",
+        backupTitle: "저장 / 백업", backupNotice: "입력 내용은 이 기기의 브라우저에 자동 저장됩니다. 다른 기기로 옮길 때는 백업 JSON을 저장하고, 같은 화면에서 다시 불러오면 됩니다.",
+        exportCsv: "Excel용 CSV", exportJson: "백업 JSON", importJson: "백업 불러오기", sampleRecord: "샘플 1건",
+        recordsSuffix: "건", required: "Part Number, 품번, 기계, 금형번호, 기술원 중 하나 이상 입력해 주세요.", saved: "저장되었습니다.", updated: "수정되었습니다.",
+        deleteConfirm: "이 기록을 삭제할까요?", deleted: "삭제되었습니다.", noCopy: "복사할 기록이 없습니다.", copied: "마지막 기록을 입력 화면에 복사했습니다.",
+        noDelete: "삭제할 자료가 없습니다.", deleteAllConfirm: "저장된 모든 사출조건표를 삭제할까요?", deletedAll: "전체 삭제되었습니다.",
+        empty: "저장된 내용이 없습니다.<br>입력 화면에서 첫 기록을 저장해 주세요.", untitled: "무제 기록", noDate: "날짜 없음", machineMeta: "기계", moldMeta: "금형", technicianMeta: "기술원",
+        view: "내용 보기", edit: "수정", delete: "삭제", noExport: "저장할 자료가 없습니다.", importMissing: "records 배열이 없습니다.", importDone: "백업을 불러왔습니다.", importFailed: "불러오기 실패", sampleAdded: "샘플 1건을 추가했습니다.",
+        partsTitle: "Part Number 관리", partSearch: "Part 검색", partSearchPlaceholder: "Part Number / 품번", savePart: "Part 저장", partSaved: "Part 저장되었습니다.", partDeleted: "Part 삭제되었습니다.", partRequired: "Part Number를 입력해 주세요.", noPartData: "Part 자료가 없습니다."
+      },
+      en: {
+        appTitle: "Injection Molding Conditions", tabInput: "Input", tabRecords: "Records", tabBackup: "Save", tabParts: "Parts",
+        basicInfo: "Basic Info", partNumber: "Part Number", partNo: "Material No.", machine: "Machine", moldNo: "Mold No.", date: "Date", runType: "Type",
+        barrelTemp: "Barrel Temperature", closeOpen: "Close / Open Mold", melt: "Plasticizing", timeWeight: "Time / Weight / Properties", moldPressure: "Mold / Press Method",
+        bendSketchTitle: "Warpage Sketch (After Cooling)", bendSketchLabel: "After-cooling warpage memo", bendSketchPlaceholder: "Record sketch direction or warpage condition",
+        injection: "Injection", holding: "Holding Pressure", ejector: "Ejector", switchSetting: "Holding Switch Setting", dimensions: "EL / OL / OW Dimensions",
+        technicianNotes: "Technician / Notes", technician: "Technician", notes: "Notes",
+        clear: "Clear", save: "Save", updateSave: "Save Edit", editing: "Editing", newRecord: "New", copyLast: "Copy Last", print: "Print", deleteAll: "Delete All",
+        search: "Search", searchPlaceholder: "Part Number, material no., machine, mold, technician, notes", filterDate: "Date",
+        backupTitle: "Save / Backup", backupNotice: "Data is saved automatically in this device browser. Use backup JSON to move it to another device and load it here again.",
+        exportCsv: "Excel CSV", exportJson: "Backup JSON", importJson: "Load Backup", sampleRecord: "Sample",
+        recordsSuffix: "records", required: "Enter at least one of Part Number, material no., machine, mold no., or technician.", saved: "Saved.", updated: "Updated.",
+        deleteConfirm: "Delete this record?", deleted: "Deleted.", noCopy: "No record to copy.", copied: "Last record copied to the input screen.",
+        noDelete: "No data to delete.", deleteAllConfirm: "Delete all saved condition records?", deletedAll: "All records deleted.",
+        empty: "No saved records.<br>Save the first record from the input screen.", untitled: "Untitled record", noDate: "No date", machineMeta: "Machine", moldMeta: "Mold", technicianMeta: "Technician",
+        view: "View", edit: "Edit", delete: "Delete", noExport: "No data to save.", importMissing: "No records array.", importDone: "Backup loaded.", importFailed: "Import failed", sampleAdded: "Sample added.",
+        partsTitle: "Part Number Management", partSearch: "Part Search", partSearchPlaceholder: "Part Number / material no.", savePart: "Save Part", partSaved: "Part saved.", partDeleted: "Part deleted.", partRequired: "Enter a Part Number.", noPartData: "No part data."
+      },
+      "zh-TW": {
+        appTitle: "射出成型條件表管理", tabInput: "輸入", tabRecords: "查詢", tabBackup: "儲存", tabParts: "Part 管理",
+        basicInfo: "基本資料", partNumber: "Part Number", partNo: "料號", machine: "機台", moldNo: "模號", date: "日期", runType: "類別",
+        barrelTemp: "料管溫度", closeOpen: "關模 / 開模", melt: "熔膠", timeWeight: "時間 / 重量 / 特性", moldPressure: "模具 / 壓法",
+        bendSketchTitle: "彎曲示意圖(冷卻完)", bendSketchLabel: "冷卻後彎曲狀態備註", bendSketchPlaceholder: "記錄彎曲方向或狀態",
+        injection: "射出", holding: "保壓", ejector: "頂針", switchSetting: "保壓切換設置", dimensions: "EL / OL / OW 尺寸",
+        technicianNotes: "技術員 / 備註", technician: "技術員", notes: "備註",
+        clear: "清除", save: "儲存", updateSave: "儲存修改", editing: "修改中", newRecord: "新增", copyLast: "複製最後", print: "列印", deleteAll: "全部刪除",
+        search: "搜尋", searchPlaceholder: "Part Number、料號、機台、模號、技術員、備註", filterDate: "日期",
+        backupTitle: "儲存 / 備份", backupNotice: "資料會自動儲存在此裝置瀏覽器。若要移到其他裝置，請儲存備份 JSON 後再於此畫面載入。",
+        exportCsv: "Excel CSV", exportJson: "備份 JSON", importJson: "載入備份", sampleRecord: "範例",
+        recordsSuffix: "筆", required: "請至少輸入 Part Number、料號、機台、模號或技術員其中一項。", saved: "已儲存。", updated: "已修改。",
+        deleteConfirm: "要刪除此記錄嗎？", deleted: "已刪除。", noCopy: "沒有可複製的記錄。", copied: "已複製最後一筆到輸入畫面。",
+        noDelete: "沒有可刪除的資料。", deleteAllConfirm: "要刪除所有已儲存條件表嗎？", deletedAll: "已全部刪除。",
+        empty: "尚無已儲存內容。<br>請先在輸入畫面儲存第一筆。", untitled: "未命名記錄", noDate: "無日期", machineMeta: "機台", moldMeta: "模號", technicianMeta: "技術員",
+        view: "查看", edit: "修改", delete: "刪除", noExport: "沒有可儲存的資料。", importMissing: "沒有 records 陣列。", importDone: "已載入備份。", importFailed: "載入失敗", sampleAdded: "已新增範例。",
+        partsTitle: "Part Number 管理", partSearch: "Part 搜尋", partSearchPlaceholder: "Part Number / 料號", savePart: "儲存 Part", partSaved: "Part 已儲存。", partDeleted: "Part 已刪除。", partRequired: "請輸入 Part Number。", noPartData: "沒有 Part 資料。"
+      },
+      vi: {
+        appTitle: "Quản lý điều kiện ép phun", tabInput: "Nhập", tabRecords: "Xem", tabBackup: "Lưu", tabParts: "Quản lý Part",
+        basicInfo: "Thông tin cơ bản", partNumber: "Part Number", partNo: "Mã liệu", machine: "Máy", moldNo: "Mã khuôn", date: "Ngày", runType: "Loại",
+        barrelTemp: "Nhiệt độ ống liệu", closeOpen: "Đóng / Mở khuôn", melt: "Nhựa hóa", timeWeight: "Thời gian / Trọng lượng / Đặc tính", moldPressure: "Khuôn / Cách ép",
+        bendSketchTitle: "Sơ đồ cong vênh (sau làm mát)", bendSketchLabel: "Ghi chú cong vênh sau làm mát", bendSketchPlaceholder: "Ghi hướng hoặc tình trạng cong vênh",
+        injection: "Ép phun", holding: "Giữ áp", ejector: "Chốt đẩy", switchSetting: "Cài đặt chuyển giữ áp", dimensions: "Kích thước EL / OL / OW",
+        technicianNotes: "Kỹ thuật viên / Ghi chú", technician: "Kỹ thuật viên", notes: "Ghi chú",
+        clear: "Xóa", save: "Lưu", updateSave: "Lưu sửa", editing: "Đang sửa", newRecord: "Nhập mới", copyLast: "Sao chép cuối", print: "In", deleteAll: "Xóa tất cả",
+        search: "Tìm kiếm", searchPlaceholder: "Part Number, mã liệu, máy, khuôn, kỹ thuật viên, ghi chú", filterDate: "Ngày",
+        backupTitle: "Lưu / Sao lưu", backupNotice: "Dữ liệu tự động lưu trong trình duyệt của thiết bị này. Dùng JSON sao lưu để chuyển sang thiết bị khác.",
+        exportCsv: "Excel CSV", exportJson: "JSON sao lưu", importJson: "Tải sao lưu", sampleRecord: "Mẫu",
+        recordsSuffix: "bản ghi", required: "Nhập ít nhất một mục: Part Number, mã liệu, máy, mã khuôn hoặc kỹ thuật viên.", saved: "Đã lưu.", updated: "Đã cập nhật.",
+        deleteConfirm: "Xóa bản ghi này?", deleted: "Đã xóa.", noCopy: "Không có bản ghi để sao chép.", copied: "Đã sao chép bản ghi cuối vào màn hình nhập.",
+        noDelete: "Không có dữ liệu để xóa.", deleteAllConfirm: "Xóa tất cả điều kiện đã lưu?", deletedAll: "Đã xóa tất cả.",
+        empty: "Chưa có dữ liệu đã lưu.<br>Hãy lưu bản ghi đầu tiên ở màn hình nhập.", untitled: "Bản ghi chưa đặt tên", noDate: "Không có ngày", machineMeta: "Máy", moldMeta: "Khuôn", technicianMeta: "Kỹ thuật viên",
+        view: "Xem", edit: "Sửa", delete: "Xóa", noExport: "Không có dữ liệu để lưu.", importMissing: "Không có mảng records.", importDone: "Đã tải sao lưu.", importFailed: "Tải thất bại", sampleAdded: "Đã thêm mẫu.",
+        partsTitle: "Quản lý Part Number", partSearch: "Tìm Part", partSearchPlaceholder: "Part Number / mã liệu", savePart: "Lưu Part", partSaved: "Đã lưu Part.", partDeleted: "Đã xóa Part.", partRequired: "Nhập Part Number.", noPartData: "Không có dữ liệu Part."
+      },
+      id: {
+        appTitle: "Manajemen Kondisi Injection", tabInput: "Input", tabRecords: "Lihat", tabBackup: "Simpan", tabParts: "Kelola Part",
+        basicInfo: "Info Dasar", partNumber: "Part Number", partNo: "No. Material", machine: "Mesin", moldNo: "No. Mold", date: "Tanggal", runType: "Tipe",
+        barrelTemp: "Suhu Barrel", closeOpen: "Tutup / Buka Mold", melt: "Plastisasi", timeWeight: "Waktu / Berat / Karakteristik", moldPressure: "Mold / Metode Tekan",
+        bendSketchTitle: "Sketsa Lengkung (Setelah Pendinginan)", bendSketchLabel: "Catatan lengkung setelah pendinginan", bendSketchPlaceholder: "Catat arah atau kondisi lengkung",
+        injection: "Injection", holding: "Holding Pressure", ejector: "Ejector", switchSetting: "Pengaturan Switch Holding", dimensions: "Dimensi EL / OL / OW",
+        technicianNotes: "Teknisi / Catatan", technician: "Teknisi", notes: "Catatan",
+        clear: "Hapus", save: "Simpan", updateSave: "Simpan Edit", editing: "Sedang edit", newRecord: "Input Baru", copyLast: "Salin Terakhir", print: "Cetak", deleteAll: "Hapus Semua",
+        search: "Cari", searchPlaceholder: "Part Number, no. material, mesin, mold, teknisi, catatan", filterDate: "Tanggal",
+        backupTitle: "Simpan / Backup", backupNotice: "Data otomatis tersimpan di browser perangkat ini. Gunakan JSON backup untuk memindahkan ke perangkat lain.",
+        exportCsv: "Excel CSV", exportJson: "JSON Backup", importJson: "Muat Backup", sampleRecord: "Contoh",
+        recordsSuffix: "data", required: "Isi minimal salah satu: Part Number, no. material, mesin, no. mold, atau teknisi.", saved: "Tersimpan.", updated: "Diperbarui.",
+        deleteConfirm: "Hapus data ini?", deleted: "Dihapus.", noCopy: "Tidak ada data untuk disalin.", copied: "Data terakhir disalin ke layar input.",
+        noDelete: "Tidak ada data untuk dihapus.", deleteAllConfirm: "Hapus semua kondisi yang tersimpan?", deletedAll: "Semua data dihapus.",
+        empty: "Belum ada data tersimpan.<br>Simpan data pertama dari layar input.", untitled: "Data tanpa nama", noDate: "Tanpa tanggal", machineMeta: "Mesin", moldMeta: "Mold", technicianMeta: "Teknisi",
+        view: "Lihat", edit: "Edit", delete: "Hapus", noExport: "Tidak ada data untuk disimpan.", importMissing: "Tidak ada array records.", importDone: "Backup dimuat.", importFailed: "Gagal memuat", sampleAdded: "Contoh ditambahkan.",
+        partsTitle: "Kelola Part Number", partSearch: "Cari Part", partSearchPlaceholder: "Part Number / no. material", savePart: "Simpan Part", partSaved: "Part tersimpan.", partDeleted: "Part dihapus.", partRequired: "Masukkan Part Number.", noPartData: "Tidak ada data Part."
+      }
+    };
+    const state = {
+      records: loadRecords(),
+      parts: loadParts(),
+      editingPartNumber: null,
+      editingId: null,
+      language: localStorage.getItem(LANGUAGE_KEY) || "ko"
+    };
+
+    const FIELD_LABELS = [
+      ["partNumber", "Part Number"], ["partNo", "料號 / 품번"], ["machine", "機台 / 기계"], ["moldNo", "模號 / 금형번호"], ["date", "日期 / 날짜"], ["runType", "구분"],
+      ["nozzleTemp", "射嘴 ℃"], ["barrelTemp1", "溫度一 ℃"], ["barrelTemp2", "溫度二 ℃"], ["barrelTemp3", "溫度三 ℃"], ["barrelTemp4", "溫度四 ℃"],
+      ["closeSpeed1", "關模 속도 1"], ["closeSpeed2", "關模 속도 2"], ["closeSpeed3", "關模 속도 3"], ["closeSpeedLow", "關模 속도 低壓"],
+      ["closePressure1", "關模 압력 1"], ["closePressure2", "關模 압력 2"], ["closePressure3", "關模 압력 3"], ["closePressureLow", "關模 압력 低壓"],
+      ["closePosition1", "關模 위치 1"], ["closePosition2", "關模 위치 2"], ["closePosition3", "關模 위치 3"], ["closePositionLow", "關模 위치 低壓"],
+      ["openSpeed4", "開模 속도 4"], ["openSpeed3", "開模 속도 3"], ["openSpeed2", "開模 속도 2"], ["openSpeed1", "開模 속도 1"],
+      ["openPressure4", "開模 압력 4"], ["openPressure3", "開模 압력 3"], ["openPressure2", "開模 압력 2"], ["openPressure1", "開模 압력 1"],
+      ["openPosition4", "開模 위치 4"], ["openPosition3", "開模 위치 3"], ["openPosition2", "開模 위치 2"], ["openPosition1", "開模 위치 1"],
+      ["injSpeed3", "射出 속도 3"], ["injSpeed2", "射出 속도 2"], ["injSpeed1", "射出 속도 1"],
+      ["injPressure3", "射出 압력 3"], ["injPressure2", "射出 압력 2"], ["injPressure1", "射出 압력 1"],
+      ["injTime3", "射出 시간 3"], ["injTime2", "射出 시간 2"], ["injTime1", "射出 시간 1"],
+      ["holdSpeed3", "保壓 속도 3"], ["holdSpeed2", "保壓 속도 2"], ["holdSpeed1", "保壓 속도 1"],
+      ["holdPressure3", "保壓 압력 3"], ["holdPressure2", "保壓 압력 2"], ["holdPressure1", "保壓 압력 1"],
+      ["holdTime3", "保壓 시간 3"], ["holdTime2", "保壓 시간 2"], ["holdTime1", "保壓 시간 1"],
+      ["ejForwardSpeed1", "頂針前進 속도 1"], ["ejForwardSpeed2", "頂針前進 속도 2"], ["ejForwardPressure1", "頂針前進 압력 1"], ["ejForwardPressure2", "頂針前進 압력 2"], ["ejForwardPosition1", "頂針前進 위치 1"], ["ejForwardPosition2", "頂針前進 위치 2"],
+      ["ejBackSpeed2", "頂針後退 속도 2"], ["ejBackSpeed1", "頂針後退 속도 1"], ["ejBackPressure2", "頂針後退 압력 2"], ["ejBackPressure1", "頂針後退 압력 1"], ["ejBackPosition2", "頂針後退 위치 2"], ["ejBackPosition1", "頂針後退 위치 1"],
+      ["meltRpmPre", "熔膠 轉速 前鬆退"], ["meltRpm1", "熔膠 轉速 1"], ["meltRpm2", "熔膠 轉速 2"], ["meltRpmPost", "熔膠 轉速 後鬆退"],
+      ["meltBackPressurePre", "熔膠 背壓 前鬆退"], ["meltBackPressure1", "熔膠 背壓 1"], ["meltBackPressure2", "熔膠 背壓 2"], ["meltBackPressurePost", "熔膠 背壓 後鬆退"],
+      ["meltSpeedPre", "熔膠 速度 前鬆退"], ["meltSpeed1", "熔膠 速度 1"], ["meltSpeed2", "熔膠 速度 2"], ["meltSpeedPost", "熔膠 速度 後鬆退"],
+      ["meltPressurePre", "熔膠 壓力 前鬆退"], ["meltPressure1", "熔膠 壓力 1"], ["meltPressure2", "熔膠 壓力 2"], ["meltPressurePost", "熔膠 壓力 後鬆退"],
+      ["meltPositionPre", "熔膠 位置 前鬆退"], ["meltPosition1", "熔膠 位置 1"], ["meltPosition2", "熔膠 位置 2"], ["meltPositionPost", "熔膠 位置 後鬆退"],
+      ["coolingTime", "冷卻時間 sec"], ["cycleTime", "週期時間 sec"], ["dryTime", "乾燥時間 hrs"], ["dryTemp", "乾燥溫度 ℃"],
+      ["trayWeight", "Tray重量 g"], ["sprueWeight", "料頭重量 g"], ["warpage", "彎度 Mill"], ["srResistance", "S.R 電阻 Ω"],
+      ["switchByPosition", "保壓切換 위치 사용"], ["switchPosition", "保壓切換 위치값"], ["switchByTime", "保壓切換 시간 사용"], ["switchTime", "保壓切換 시간값"],
+      ["maleMoldTemp", "公模 ℃"], ["femaleMoldTemp", "母模 ℃"], ["positivePressure", "正壓正放"], ["reversePressure", "反壓反放"], ["maleWaterTempMachine", "公模 水溫機"], ["femaleWaterTempMachine", "母模 水溫機"], ["bendSketch", "彎曲示意圖(冷卻完)"],
+      ["dim1El", "1 EL 長"], ["dim1Ol", "1 OL 長"], ["dim1Ow", "1 OW 寬"], ["dim2El", "2 EL 長"], ["dim2Ol", "2 OL 長"], ["dim2Ow", "2 OW 寬"],
+      ["technician", "技術員"], ["notes", "備註"]
+    ];
+
+    const DETAIL_GROUPS = [
+      ["기본 정보", ["partNumber", "partNo", "machine", "moldNo", "date", "runType", "technician"]],
+      ["료관 온도", ["nozzleTemp", "barrelTemp1", "barrelTemp2", "barrelTemp3", "barrelTemp4"]],
+      ["관모 / 개모", ["closeSpeed1", "closeSpeed2", "closeSpeed3", "closeSpeedLow", "closePressure1", "closePressure2", "closePressure3", "closePressureLow", "closePosition1", "closePosition2", "closePosition3", "closePositionLow", "openSpeed4", "openSpeed3", "openSpeed2", "openSpeed1", "openPressure4", "openPressure3", "openPressure2", "openPressure1", "openPosition4", "openPosition3", "openPosition2", "openPosition1"]],
+      ["사출 / 보압", ["injSpeed3", "injSpeed2", "injSpeed1", "injPressure3", "injPressure2", "injPressure1", "injTime3", "injTime2", "injTime1", "holdSpeed3", "holdSpeed2", "holdSpeed1", "holdPressure3", "holdPressure2", "holdPressure1", "holdTime3", "holdTime2", "holdTime1"]],
+      ["이젝터 / 계량", ["ejForwardSpeed1", "ejForwardSpeed2", "ejForwardPressure1", "ejForwardPressure2", "ejForwardPosition1", "ejForwardPosition2", "ejBackSpeed2", "ejBackSpeed1", "ejBackPressure2", "ejBackPressure1", "ejBackPosition2", "ejBackPosition1", "meltRpmPre", "meltRpm1", "meltRpm2", "meltRpmPost", "meltBackPressurePre", "meltBackPressure1", "meltBackPressure2", "meltBackPressurePost", "meltSpeedPre", "meltSpeed1", "meltSpeed2", "meltSpeedPost", "meltPressurePre", "meltPressure1", "meltPressure2", "meltPressurePost", "meltPositionPre", "meltPosition1", "meltPosition2", "meltPositionPost"]],
+      ["시간 / 금형 / 치수", ["coolingTime", "cycleTime", "dryTime", "dryTemp", "trayWeight", "sprueWeight", "warpage", "srResistance", "switchByPosition", "switchPosition", "switchByTime", "switchTime", "maleMoldTemp", "femaleMoldTemp", "positivePressure", "reversePressure", "maleWaterTempMachine", "femaleWaterTempMachine", "bendSketch", "dim1El", "dim1Ol", "dim1Ow", "dim2El", "dim2Ol", "dim2Ow"]],
+      ["비고", ["notes"]]
+    ];
+
+    const labelMap = Object.fromEntries(FIELD_LABELS);
+    const form = document.getElementById("conditionForm");
+    const toast = document.getElementById("toast");
+    const languageSelect = document.getElementById("languageSelect");
+
+    languageSelect.value = state.language;
+    languageSelect.addEventListener("change", () => {
+      state.language = languageSelect.value;
+      localStorage.setItem(LANGUAGE_KEY, state.language);
+      applyLanguage();
+      renderAll();
+      renderParts();
+    });
+
+    document.querySelectorAll(".tab").forEach((button) => {
+      button.addEventListener("click", () => showView(button.dataset.view));
+    });
+
+    document.getElementById("saveRecord").addEventListener("click", saveRecord);
+    document.getElementById("clearForm").addEventListener("click", resetForm);
+    document.getElementById("newRecord").addEventListener("click", () => {
+      resetForm();
+      showView("input");
+    });
+    document.getElementById("copyLast").addEventListener("click", copyLastRecord);
+    document.getElementById("printRecords").addEventListener("click", () => window.print());
+    document.getElementById("deleteAll").addEventListener("click", deleteAllRecords);
+    document.getElementById("searchText").addEventListener("input", renderRecords);
+    document.getElementById("filterDate").addEventListener("input", renderRecords);
+    document.getElementById("exportCsv").addEventListener("click", exportCsv);
+    document.getElementById("exportJson").addEventListener("click", exportJson);
+    document.getElementById("importJsonButton").addEventListener("click", () => document.getElementById("importJson").click());
+    document.getElementById("importJson").addEventListener("change", importJson);
+    document.getElementById("sampleRecord").addEventListener("click", addSampleRecord);
+    document.getElementById("partNumber").addEventListener("input", handlePartNumberInput);
+    document.getElementById("partSearch").addEventListener("input", renderParts);
+    document.getElementById("savePart").addEventListener("click", savePart);
+    document.getElementById("clearPart").addEventListener("click", clearPartEditor);
+    document.getElementById("deletePart").addEventListener("click", deletePart);
+
+    initialize();
+
+    function initialize() {
+      const today = new Date().toISOString().slice(0, 10);
+      form.elements.date.value = today;
+      applyLanguage();
+      renderPartDatalist();
+      renderAll();
+    }
+
+    function showView(name) {
+      document.querySelectorAll(".tab").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
+      document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${name}`));
+      if (name === "records") renderRecords();
+      if (name === "parts") renderParts();
+    }
+
+    function saveRecord() {
+      const record = readForm();
+      if (!record.partNumber && !record.partNo && !record.machine && !record.moldNo && !record.technician) {
+        showToast(t("required"));
+        return;
+      }
+
+      const now = new Date().toISOString();
+      if (state.editingId) {
+        const index = state.records.findIndex((item) => item.id === state.editingId);
+        if (index >= 0) {
+          state.records[index] = { ...state.records[index], ...record, updatedAt: now };
+          showToast(t("updated"));
+        }
+      } else {
+        state.records.unshift({ ...record, id: crypto.randomUUID(), createdAt: now, updatedAt: now });
+        showToast(t("saved"));
+      }
+
+      persist();
+      resetForm();
+      renderAll();
+      showView("records");
+    }
+
+    function readForm() {
+      const data = {};
+      FIELD_LABELS.forEach(([key]) => {
+        const element = form.elements[key];
+        if (!element) return;
+        if (element instanceof RadioNodeList) {
+          data[key] = element.value || "";
+        } else if (element.type === "checkbox") {
+          data[key] = element.checked;
+        } else {
+          data[key] = element.value.trim();
+        }
+      });
+      return data;
+    }
+
+    function fillForm(record) {
+      FIELD_LABELS.forEach(([key]) => {
+        const element = form.elements[key];
+        if (!element) return;
+        if (element instanceof RadioNodeList) {
+          const selected = Array.from(element).find((item) => item.value === record[key]);
+          if (selected) selected.checked = true;
+        } else if (element.type === "checkbox") {
+          element.checked = Boolean(record[key]);
+        } else {
+          element.value = record[key] || "";
+        }
+      });
+    }
+
+    function resetForm() {
+      form.reset();
+      form.elements.runType.value = "量產";
+      form.elements.date.value = new Date().toISOString().slice(0, 10);
+      state.editingId = null;
+      document.getElementById("saveRecord").textContent = t("save");
+      document.getElementById("editBadge").textContent = "";
+    }
+
+    function editRecord(id) {
+      const record = state.records.find((item) => item.id === id);
+      if (!record) return;
+      fillForm(record);
+      state.editingId = id;
+      document.getElementById("saveRecord").textContent = t("updateSave");
+      document.getElementById("editBadge").textContent = t("editing");
+      showView("input");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteRecord(id) {
+      if (!confirm(t("deleteConfirm"))) return;
+      state.records = state.records.filter((item) => item.id !== id);
+      persist();
+      renderAll();
+      showToast(t("deleted"));
+    }
+
+    function copyLastRecord() {
+      if (!state.records.length) {
+        showToast(t("noCopy"));
+        return;
+      }
+      const { id, createdAt, updatedAt, ...copy } = state.records[0];
+      fillForm({ ...copy, date: new Date().toISOString().slice(0, 10) });
+      state.editingId = null;
+      document.getElementById("saveRecord").textContent = t("save");
+      document.getElementById("editBadge").textContent = "";
+      showView("input");
+      showToast(t("copied"));
+    }
+
+    function deleteAllRecords() {
+      if (!state.records.length) {
+        showToast(t("noDelete"));
+        return;
+      }
+      if (!confirm(t("deleteAllConfirm"))) return;
+      state.records = [];
+      persist();
+      renderAll();
+      showToast(t("deletedAll"));
+    }
+
+    function renderAll() {
+      document.getElementById("recordCount").textContent = `${state.records.length}${state.language === "ko" || state.language === "zh-TW" ? "" : " "}${t("recordsSuffix")}`;
+      renderRecords();
+    }
+
+    function renderRecords() {
+      const area = document.getElementById("recordsArea");
+      const query = document.getElementById("searchText").value.trim().toLowerCase();
+      const date = document.getElementById("filterDate").value;
+      const rows = state.records.filter((record) => {
+        const searchSource = [record.partNumber, record.partNo, record.machine, record.moldNo, record.technician, record.notes].join(" ").toLowerCase();
+        return (!query || searchSource.includes(query)) && (!date || record.date === date);
+      });
+
+      if (!rows.length) {
+        area.innerHTML = `<div class="empty">${t("empty")}</div>`;
+        return;
+      }
+
+      area.innerHTML = rows.map((record) => recordCard(record)).join("");
+      area.querySelectorAll("[data-action='toggle']").forEach((button) => {
+        button.addEventListener("click", () => button.closest(".record-card").classList.toggle("open"));
+      });
+      area.querySelectorAll("[data-action='edit']").forEach((button) => {
+        button.addEventListener("click", () => editRecord(button.dataset.id));
+      });
+      area.querySelectorAll("[data-action='delete']").forEach((button) => {
+        button.addEventListener("click", () => deleteRecord(button.dataset.id));
+      });
+    }
+
+    function recordCard(record) {
+      const title = escapeHtml(record.partNumber || record.partNo || record.moldNo || record.machine || t("untitled"));
+      const meta = [
+        record.date || t("noDate"),
+        record.runType || "",
+        record.machine ? `${t("machineMeta")} ${record.machine}` : "",
+        record.moldNo ? `${t("moldMeta")} ${record.moldNo}` : "",
+        record.technician ? `${t("technicianMeta")} ${record.technician}` : ""
+      ].filter(Boolean).map(escapeHtml).join(" · ");
+
+      return `
+        <article class="record-card">
+          <div class="record-head">
+            <div class="record-title">${title}</div>
+            <div class="record-meta">${meta}</div>
+          </div>
+          <div class="record-actions">
+            <button class="small" type="button" data-action="toggle">${escapeHtml(t("view"))}</button>
+            <button class="small" type="button" data-action="edit" data-id="${record.id}">${escapeHtml(t("edit"))}</button>
+            <button class="small danger" type="button" data-action="delete" data-id="${record.id}">${escapeHtml(t("delete"))}</button>
+          </div>
+          <div class="detail">${detailHtml(record)}</div>
+        </article>
+      `;
+    }
+
+    function detailHtml(record) {
+      return `<div class="detail-grid">${DETAIL_GROUPS.map(([title, keys]) => {
+        const rows = keys.map((key) => {
+          let value = record[key];
+          if (typeof value === "boolean") value = value ? "Y" : "";
+          if (value === undefined || value === null || value === "") value = "-";
+          return `<div class="kv"><div>${escapeHtml(labelMap[key] || key)}</div><div>${escapeHtml(String(value))}</div></div>`;
+        }).join("");
+        return `<section class="detail-section"><h3>${escapeHtml(groupTitle(title))}</h3>${rows}</section>`;
+      }).join("")}</div>`;
+    }
+
+    function exportCsv() {
+      if (!state.records.length) {
+        showToast(t("noExport"));
+        return;
+      }
+      const headers = FIELD_LABELS.map(([, label]) => label);
+      const lines = [headers, ...state.records.map((record) => FIELD_LABELS.map(([key]) => csvValue(record[key])))];
+      downloadFile(`사출성형조건표_${dateStamp()}.csv`, "\ufeff" + lines.map((row) => row.join(",")).join("\n"), "text/csv;charset=utf-8");
+    }
+
+    function exportJson() {
+      if (!state.records.length) {
+        showToast(t("noExport"));
+        return;
+      }
+      downloadFile(`사출성형조건표_백업_${dateStamp()}.json`, JSON.stringify({ records: state.records }, null, 2), "application/json;charset=utf-8");
+    }
+
+    function importJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const payload = JSON.parse(reader.result);
+          if (!Array.isArray(payload.records)) throw new Error(t("importMissing"));
+          state.records = payload.records;
+          persist();
+          renderAll();
+          showToast(t("importDone"));
+        } catch (error) {
+          showToast(`${t("importFailed")}: ${error.message}`);
+        } finally {
+          event.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function addSampleRecord() {
+      state.records.unshift({
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        partNumber: "PN-SAMPLE-001",
+        partNo: "SAMPLE-001",
+        machine: "CH-120T",
+        moldNo: "MOLD-A1",
+        date: new Date().toISOString().slice(0, 10),
+        runType: "量產",
+        nozzleTemp: "230",
+        barrelTemp1: "225",
+        barrelTemp2: "220",
+        barrelTemp3: "215",
+        barrelTemp4: "210",
+        injSpeed3: "45",
+        injSpeed2: "40",
+        injSpeed1: "35",
+        injPressure3: "80",
+        injPressure2: "75",
+        injPressure1: "70",
+        holdPressure3: "55",
+        holdPressure2: "50",
+        holdPressure1: "45",
+        coolingTime: "12",
+        cycleTime: "28",
+        maleMoldTemp: "60",
+        femaleMoldTemp: "58",
+        technician: "홍길동",
+        notes: "샘플 데이터입니다."
+      });
+      persist();
+      renderAll();
+      showToast(t("sampleAdded"));
+    }
+
+    function t(key) {
+      return (TRANSLATIONS[state.language] && TRANSLATIONS[state.language][key]) || TRANSLATIONS.ko[key] || key;
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = state.language;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = t(element.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+        element.placeholder = t(element.dataset.i18nPlaceholder);
+      });
+      if (state.editingId) {
+        document.getElementById("saveRecord").textContent = t("updateSave");
+        document.getElementById("editBadge").textContent = t("editing");
+      } else {
+        document.getElementById("saveRecord").textContent = t("save");
+        document.getElementById("editBadge").textContent = "";
+      }
+    }
+
+    function groupTitle(title) {
+      const keys = {
+        "기본 정보": "basicInfo",
+        "료관 온도": "barrelTemp",
+        "관모 / 개모": "closeOpen",
+        "사출 / 보압": "injection",
+        "이젝터 / 계량": "ejector",
+        "시간 / 금형 / 치수": "timeWeight",
+        "비고": "notes"
+      };
+      return keys[title] ? t(keys[title]) : title;
+    }
+
+    function normalizePartNumber(value) {
+      return String(value || "").trim().toUpperCase();
+    }
+
+    function findPart(partNumber) {
+      const target = normalizePartNumber(partNumber);
+      return state.parts.find((item) => normalizePartNumber(item.partNumber) === target);
+    }
+
+    function handlePartNumberInput() {
+      const part = findPart(form.elements.partNumber.value);
+      if (part) {
+        form.elements.partNo.value = part.partNo || "";
+      }
+    }
+
+    function renderPartDatalist() {
+      const list = document.getElementById("partNumberList");
+      const sample = state.parts.slice(0, 1200);
+      list.innerHTML = sample.map((item) => `<option value="${escapeHtml(item.partNumber)}">${escapeHtml(item.partNo || "")}</option>`).join("");
+    }
+
+    function renderParts() {
+      const area = document.getElementById("partListArea");
+      const query = document.getElementById("partSearch").value.trim().toLowerCase();
+      const rows = state.parts
+        .filter((item) => !query || [item.partNumber, item.partNo].join(" ").toLowerCase().includes(query))
+        .slice(0, 300);
+
+      if (!rows.length) {
+        area.innerHTML = `<div class="empty">${t("noPartData")}</div>`;
+        return;
+      }
+
+      area.innerHTML = `
+        <table>
+          <thead><tr><th>Part Number</th><th>${escapeHtml(t("partNo"))}</th><th>${escapeHtml(t("edit"))}</th></tr></thead>
+          <tbody>
+            ${rows.map((item) => `
+              <tr>
+                <td>${escapeHtml(item.partNumber)}</td>
+                <td>${escapeHtml(item.partNo || "")}</td>
+                <td><button class="small" type="button" data-part="${escapeHtml(item.partNumber)}">${escapeHtml(t("edit"))}</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+      area.querySelectorAll("[data-part]").forEach((button) => {
+        button.addEventListener("click", () => editPart(button.dataset.part));
+      });
+    }
+
+    function editPart(partNumber) {
+      const part = findPart(partNumber);
+      if (!part) return;
+      state.editingPartNumber = part.partNumber;
+      document.getElementById("editPartNumber").value = part.partNumber;
+      document.getElementById("editPartNo").value = part.partNo || "";
+    }
+
+    function savePart() {
+      const partNumber = document.getElementById("editPartNumber").value.trim();
+      const partNo = document.getElementById("editPartNo").value.trim();
+      if (!partNumber) {
+        showToast(t("partRequired"));
+        return;
+      }
+
+      const normalized = normalizePartNumber(partNumber);
+      const existingIndex = state.parts.findIndex((item) => normalizePartNumber(item.partNumber) === normalized || normalizePartNumber(item.partNumber) === normalizePartNumber(state.editingPartNumber));
+      const next = { partNumber, partNo };
+      if (existingIndex >= 0) {
+        state.parts[existingIndex] = next;
+      } else {
+        state.parts.unshift(next);
+      }
+      state.parts.sort((a, b) => a.partNumber.localeCompare(b.partNumber));
+      persistParts();
+      renderPartDatalist();
+      renderParts();
+      clearPartEditor(false);
+      showToast(t("partSaved"));
+    }
+
+    function deletePart() {
+      const partNumber = document.getElementById("editPartNumber").value.trim();
+      if (!partNumber) {
+        showToast(t("partRequired"));
+        return;
+      }
+      state.parts = state.parts.filter((item) => normalizePartNumber(item.partNumber) !== normalizePartNumber(partNumber));
+      persistParts();
+      renderPartDatalist();
+      renderParts();
+      clearPartEditor(false);
+      showToast(t("partDeleted"));
+    }
+
+    function clearPartEditor(clearToast = true) {
+      state.editingPartNumber = null;
+      document.getElementById("editPartNumber").value = "";
+      document.getElementById("editPartNo").value = "";
+      if (clearToast) showToast(t("clear"));
+    }
+
+    function loadRecords() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
+    }
+
+    function loadParts() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(PART_MASTER_KEY) || "null");
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+      return PN_MASTER.slice();
+    }
+
+    function persistParts() {
+      localStorage.setItem(PART_MASTER_KEY, JSON.stringify(state.parts));
+    }
+
+    function csvValue(value) {
+      if (typeof value === "boolean") return value ? "Y" : "";
+      const text = value == null ? "" : String(value);
+      return `"${text.replace(/"/g, '""')}"`;
+    }
+
+    function downloadFile(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function dateStamp() {
+      return new Date().toISOString().slice(0, 10).replaceAll("-", "");
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+  </script>
+</body>
+</html>
