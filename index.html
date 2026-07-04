@@ -1527,12 +1527,14 @@
       const body = JSON.stringify(payload);
 
       try {
+        const formBody = new URLSearchParams();
+        formBody.set("payload", body);
         await fetch(url, {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body
+          body: formBody
         });
+        submitCloudForm(url, body);
         showToast(t("cloudSaved"));
       } catch (error) {
         try {
