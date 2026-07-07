@@ -940,12 +940,12 @@
           </section>
 
           <section class="section" style="order: 12">
-            <div class="section-title" data-i18n="dimensions">EL / OL / OW 치수</div>
+            <div class="section-title" data-i18n="dimensions">EL / CEL / OL / OW / COW 치수</div>
             <div class="section-body"><div class="matrix-wrap"><table class="matrix">
-              <thead><tr><th>NO</th><th>EL 長</th><th>OL 長</th><th>OW 寬</th><th>단위</th></tr></thead>
+              <thead><tr><th>NO</th><th>EL 長</th><th>CEL</th><th>OL 長</th><th>OW 寬</th><th>COW</th><th>단위</th></tr></thead>
               <tbody>
-                <tr><th>1</th><td><input name="dim1El"></td><td><input name="dim1Ol"></td><td><input name="dim1Ow"></td><td>mm</td></tr>
-                <tr><th>2</th><td><input name="dim2El"></td><td><input name="dim2Ol"></td><td><input name="dim2Ow"></td><td>mm</td></tr>
+                <tr><th>1</th><td><input name="dim1El"></td><td><input name="dim1Cel"></td><td><input name="dim1Ol"></td><td><input name="dim1Ow"></td><td><input name="dim1Cow"></td><td>mm</td></tr>
+                <tr><th>2</th><td><input name="dim2El"></td><td><input name="dim2Cel"></td><td><input name="dim2Ol"></td><td><input name="dim2Ow"></td><td><input name="dim2Cow"></td><td>mm</td></tr>
               </tbody>
             </table></div></div>
           </section>
@@ -1128,7 +1128,7 @@
         basicInfo: "기본 정보", partNumber: "Part Number", partNo: "料號 / 품번", machine: "機台 / 기계", moldNo: "模號 / 금형번호", date: "日期 / 날짜", runType: "구분",
         barrelTemp: "料管溫度 / 료관 온도", closeOpen: "關模 / 開模", melt: "熔膠 / 계량", timeWeight: "시간 / 중량 / 특성", moldPressure: "금형 / 압법",
         bendSketchTitle: "彎曲示意圖(冷卻完)", bendSketchLabel: "냉각 후 휨 상태 메모", bendSketchPlaceholder: "도식 또는 휨 방향/상태를 간단히 기록",
-        injection: "射出 / 사출", holding: "保壓 / 보압", ejector: "頂針 / 이젝터", switchSetting: "保壓切換設置 / 보압 전환", dimensions: "EL / OL / OW 치수",
+        injection: "射出 / 사출", holding: "保壓 / 보압", ejector: "頂針 / 이젝터", switchSetting: "保壓切換設置 / 보압 전환", dimensions: "EL / CEL / OL / OW / COW 치수",
         technicianNotes: "기술원 / 비고", technician: "技術員 / 기술원", notes: "備註 / 비고",
         clear: "초기화", save: "저장", updateSave: "수정 저장", editing: "수정 중", newRecord: "새 입력", copyLast: "마지막 복사", print: "인쇄", deleteAll: "전체 삭제",
         search: "검색", searchPlaceholder: "Part Number, 품번, 기계, 금형번호, 기술원, 비고", filterDate: "날짜",
@@ -1146,7 +1146,7 @@
         basicInfo: "Basic Info", partNumber: "Part Number", partNo: "Material No.", machine: "Machine", moldNo: "Mold No.", date: "Date", runType: "Type",
         barrelTemp: "Barrel Temperature", closeOpen: "Close / Open Mold", melt: "Plasticizing", timeWeight: "Time / Weight / Properties", moldPressure: "Mold / Press Method",
         bendSketchTitle: "Warpage Sketch (After Cooling)", bendSketchLabel: "After-cooling warpage memo", bendSketchPlaceholder: "Record sketch direction or warpage condition",
-        injection: "Injection", holding: "Holding Pressure", ejector: "Ejector", switchSetting: "Holding Switch Setting", dimensions: "EL / OL / OW Dimensions",
+        injection: "Injection", holding: "Holding Pressure", ejector: "Ejector", switchSetting: "Holding Switch Setting", dimensions: "EL / CEL / OL / OW / COW Dimensions",
         technicianNotes: "Technician / Notes", technician: "Technician", notes: "Notes",
         clear: "Clear", save: "Save", updateSave: "Save Edit", editing: "Editing", newRecord: "New", copyLast: "Copy Last", print: "Print", deleteAll: "Delete All",
         search: "Search", searchPlaceholder: "Part Number, material no., machine, mold, technician, notes", filterDate: "Date",
@@ -1164,7 +1164,7 @@
         basicInfo: "基本資料", partNumber: "Part Number", partNo: "料號", machine: "機台", moldNo: "模號", date: "日期", runType: "類別",
         barrelTemp: "料管溫度", closeOpen: "關模 / 開模", melt: "熔膠", timeWeight: "時間 / 重量 / 特性", moldPressure: "模具 / 壓法",
         bendSketchTitle: "彎曲示意圖(冷卻完)", bendSketchLabel: "冷卻後彎曲狀態備註", bendSketchPlaceholder: "記錄彎曲方向或狀態",
-        injection: "射出", holding: "保壓", ejector: "頂針", switchSetting: "保壓切換設置", dimensions: "EL / OL / OW 尺寸",
+        injection: "射出", holding: "保壓", ejector: "頂針", switchSetting: "保壓切換設置", dimensions: "EL / CEL / OL / OW / COW 尺寸",
         technicianNotes: "技術員 / 備註", technician: "技術員", notes: "備註",
         clear: "清除", save: "儲存", updateSave: "儲存修改", editing: "修改中", newRecord: "新增", copyLast: "複製最後", print: "列印", deleteAll: "全部刪除",
         search: "搜尋", searchPlaceholder: "Part Number、料號、機台、模號、技術員、備註", filterDate: "日期",
@@ -1182,7 +1182,7 @@
         basicInfo: "Thông tin cơ bản", partNumber: "Part Number", partNo: "Mã liệu", machine: "Máy", moldNo: "Mã khuôn", date: "Ngày", runType: "Loại",
         barrelTemp: "Nhiệt độ ống liệu", closeOpen: "Đóng / Mở khuôn", melt: "Nhựa hóa", timeWeight: "Thời gian / Trọng lượng / Đặc tính", moldPressure: "Khuôn / Cách ép",
         bendSketchTitle: "Sơ đồ cong vênh (sau làm mát)", bendSketchLabel: "Ghi chú cong vênh sau làm mát", bendSketchPlaceholder: "Ghi hướng hoặc tình trạng cong vênh",
-        injection: "Ép phun", holding: "Giữ áp", ejector: "Chốt đẩy", switchSetting: "Cài đặt chuyển giữ áp", dimensions: "Kích thước EL / OL / OW",
+        injection: "Ép phun", holding: "Giữ áp", ejector: "Chốt đẩy", switchSetting: "Cài đặt chuyển giữ áp", dimensions: "Kích thước EL / CEL / OL / OW / COW",
         technicianNotes: "Kỹ thuật viên / Ghi chú", technician: "Kỹ thuật viên", notes: "Ghi chú",
         clear: "Xóa", save: "Lưu", updateSave: "Lưu sửa", editing: "Đang sửa", newRecord: "Nhập mới", copyLast: "Sao chép cuối", print: "In", deleteAll: "Xóa tất cả",
         search: "Tìm kiếm", searchPlaceholder: "Part Number, mã liệu, máy, khuôn, kỹ thuật viên, ghi chú", filterDate: "Ngày",
@@ -1200,7 +1200,7 @@
         basicInfo: "Info Dasar", partNumber: "Part Number", partNo: "No. Material", machine: "Mesin", moldNo: "No. Mold", date: "Tanggal", runType: "Tipe",
         barrelTemp: "Suhu Barrel", closeOpen: "Tutup / Buka Mold", melt: "Plastisasi", timeWeight: "Waktu / Berat / Karakteristik", moldPressure: "Mold / Metode Tekan",
         bendSketchTitle: "Sketsa Lengkung (Setelah Pendinginan)", bendSketchLabel: "Catatan lengkung setelah pendinginan", bendSketchPlaceholder: "Catat arah atau kondisi lengkung",
-        injection: "Injection", holding: "Holding Pressure", ejector: "Ejector", switchSetting: "Pengaturan Switch Holding", dimensions: "Dimensi EL / OL / OW",
+        injection: "Injection", holding: "Holding Pressure", ejector: "Ejector", switchSetting: "Pengaturan Switch Holding", dimensions: "Dimensi EL / CEL / OL / OW / COW",
         technicianNotes: "Teknisi / Catatan", technician: "Teknisi", notes: "Catatan",
         clear: "Hapus", save: "Simpan", updateSave: "Simpan Edit", editing: "Sedang edit", newRecord: "Input Baru", copyLast: "Salin Terakhir", print: "Cetak", deleteAll: "Hapus Semua",
         search: "Cari", searchPlaceholder: "Part Number, no. material, mesin, mold, teknisi, catatan", filterDate: "Tanggal",
@@ -1221,7 +1221,7 @@
         "前鬆退": "전송퇴", "後鬆退": "후송퇴", "轉速": "회전수", "背壓": "배압", "速度": "속도", "壓力": "압력", "位置": "위치", "時間": "시간",
         "冷卻時間": "냉각시간", "週期時間": "주기시간", "乾燥時間": "건조시간", "乾燥溫度": "건조온도", "Tray重量": "Tray 중량", "料頭重量": "료두 중량", "彎度": "휨도", "S.R 電阻": "S.R 저항",
         "公模": "공모", "母模": "모모", "壓法": "압법", "正壓正放": "정압정방", "反壓反放": "반압반방", "水溫機": "수온기",
-        "前進 1": "전진 1", "前進 2": "전진 2", "後退 2": "후퇴 2", "後退 1": "후퇴 1", "保壓切換": "보압 전환", "EL 長": "EL 길이", "OL 長": "OL 길이", "OW 寬": "OW 폭", "NO": "NO",
+        "前進 1": "전진 1", "前進 2": "전진 2", "後退 2": "후퇴 2", "後退 1": "후퇴 1", "保壓切換": "보압 전환", "EL 長": "EL 길이", "CEL": "CEL", "OL 長": "OL 길이", "OW 寬": "OW 폭", "COW": "COW", "NO": "NO",
         "Date": "날짜", "Part No.": "Part No.", "Description": "품명", "Mold No.": "금형번호", "Machine No.": "기계번호", "Shift": "근무조", "Item": "항목", "Spec": "기준", "Set": "설정", "Actual": "실제",
         "Mold Temperature": "금형 온도", "Top": "상부", "Bottom": "하부", "Injection Condition": "사출 조건", "Time": "시간", "Temperature": "온도", "Material": "재료", "Hopper": "호퍼", "Mold Cleaning": "금형 청소", "Confirm": "확인", "Technician No.": "기술자 번호"
       },
@@ -1231,7 +1231,7 @@
         "前鬆退": "Pre suck-back", "後鬆退": "Post suck-back", "轉速": "RPM", "背壓": "Back pressure", "速度": "Speed", "壓力": "Pressure", "位置": "Position", "時間": "Time",
         "冷卻時間": "Cooling time", "週期時間": "Cycle time", "乾燥時間": "Drying time", "乾燥溫度": "Drying temp", "Tray重量": "Tray weight", "料頭重量": "Sprue weight", "彎度": "Warpage", "S.R 電阻": "S.R resistance",
         "公模": "Male mold", "母模": "Female mold", "壓法": "Press method", "正壓正放": "Positive pressure", "反壓反放": "Reverse pressure", "水溫機": "Water temp machine",
-        "前進 1": "Forward 1", "前進 2": "Forward 2", "後退 2": "Back 2", "後退 1": "Back 1", "保壓切換": "Holding switch", "EL 長": "EL length", "OL 長": "OL length", "OW 寬": "OW width", "NO": "NO",
+        "前進 1": "Forward 1", "前進 2": "Forward 2", "後退 2": "Back 2", "後退 1": "Back 1", "保壓切換": "Holding switch", "EL 長": "EL length", "CEL": "CEL", "OL 長": "OL length", "OW 寬": "OW width", "COW": "COW", "NO": "NO",
         "Date": "Date", "Part No.": "Part No.", "Description": "Description", "Mold No.": "Mold No.", "Machine No.": "Machine No.", "Shift": "Shift", "Item": "Item", "Spec": "Spec", "Set": "Set", "Actual": "Actual",
         "Mold Temperature": "Mold Temperature", "Top": "Top", "Bottom": "Bottom", "Injection Condition": "Injection Condition", "Time": "Time", "Temperature": "Temperature", "Material": "Material", "Hopper": "Hopper", "Mold Cleaning": "Mold Cleaning", "Confirm": "Confirm", "Technician No.": "Technician No."
       },
@@ -1241,7 +1241,7 @@
         "前鬆退": "前鬆退", "後鬆退": "後鬆退", "轉速": "轉速", "背壓": "背壓", "速度": "速度", "壓力": "壓力", "位置": "位置", "時間": "時間",
         "冷卻時間": "冷卻時間", "週期時間": "週期時間", "乾燥時間": "乾燥時間", "乾燥溫度": "乾燥溫度", "Tray重量": "Tray 重量", "料頭重量": "料頭重量", "彎度": "彎度", "S.R 電阻": "S.R 電阻",
         "公模": "公模", "母模": "母模", "壓法": "壓法", "正壓正放": "正壓正放", "反壓反放": "反壓反放", "水溫機": "水溫機",
-        "前進 1": "前進 1", "前進 2": "前進 2", "後退 2": "後退 2", "後退 1": "後退 1", "保壓切換": "保壓切換", "EL 長": "EL 長", "OL 長": "OL 長", "OW 寬": "OW 寬", "NO": "NO",
+        "前進 1": "前進 1", "前進 2": "前進 2", "後退 2": "後退 2", "後退 1": "後退 1", "保壓切換": "保壓切換", "EL 長": "EL 長", "CEL": "CEL", "OL 長": "OL 長", "OW 寬": "OW 寬", "COW": "COW", "NO": "NO",
         "Date": "日期", "Part No.": "Part No.", "Description": "品名", "Mold No.": "模號", "Machine No.": "機台號", "Shift": "班別", "Item": "項目", "Spec": "規格", "Set": "設定", "Actual": "實際",
         "Mold Temperature": "模溫", "Top": "上", "Bottom": "下", "Injection Condition": "射出條件", "Time": "時間", "Temperature": "溫度", "Material": "材料", "Hopper": "料斗", "Mold Cleaning": "模具清潔", "Confirm": "確認", "Technician No.": "技術員號"
       },
@@ -1251,7 +1251,7 @@
         "前鬆退": "Lùi trước", "後鬆退": "Lùi sau", "轉速": "Tốc độ quay", "背壓": "Áp lưng", "速度": "Tốc độ", "壓力": "Áp lực", "位置": "Vị trí", "時間": "Thời gian",
         "冷卻時間": "Thời gian làm mát", "週期時間": "Thời gian chu kỳ", "乾燥時間": "Thời gian sấy", "乾燥溫度": "Nhiệt độ sấy", "Tray重量": "Trọng lượng tray", "料頭重量": "Trọng lượng cuống", "彎度": "Độ cong", "S.R 電阻": "Điện trở S.R",
         "公模": "Khuôn đực", "母模": "Khuôn cái", "壓法": "Cách ép", "正壓正放": "Áp dương", "反壓反放": "Áp ngược", "水溫機": "Máy nhiệt nước",
-        "前進 1": "Tiến 1", "前進 2": "Tiến 2", "後退 2": "Lùi 2", "後退 1": "Lùi 1", "保壓切換": "Chuyển giữ áp", "EL 長": "Dài EL", "OL 長": "Dài OL", "OW 寬": "Rộng OW", "NO": "NO",
+        "前進 1": "Tiến 1", "前進 2": "Tiến 2", "後退 2": "Lùi 2", "後退 1": "Lùi 1", "保壓切換": "Chuyển giữ áp", "EL 長": "Dài EL", "CEL": "CEL", "OL 長": "Dài OL", "OW 寬": "Rộng OW", "COW": "COW", "NO": "NO",
         "Date": "Ngày", "Part No.": "Part No.", "Description": "Mô tả", "Mold No.": "Số khuôn", "Machine No.": "Số máy", "Shift": "Ca", "Item": "Hạng mục", "Spec": "Tiêu chuẩn", "Set": "Cài đặt", "Actual": "Thực tế",
         "Mold Temperature": "Nhiệt độ khuôn", "Top": "Trên", "Bottom": "Dưới", "Injection Condition": "Điều kiện ép", "Time": "Thời gian", "Temperature": "Nhiệt độ", "Material": "Vật liệu", "Hopper": "Phễu", "Mold Cleaning": "Vệ sinh khuôn", "Confirm": "Xác nhận", "Technician No.": "Mã kỹ thuật viên"
       },
@@ -1261,7 +1261,7 @@
         "前鬆退": "Suck-back awal", "後鬆退": "Suck-back akhir", "轉速": "RPM", "背壓": "Back pressure", "速度": "Kecepatan", "壓力": "Tekanan", "位置": "Posisi", "時間": "Waktu",
         "冷卻時間": "Waktu pendinginan", "週期時間": "Waktu siklus", "乾燥時間": "Waktu pengeringan", "乾燥溫度": "Suhu pengeringan", "Tray重量": "Berat tray", "料頭重量": "Berat sprue", "彎度": "Warpage", "S.R 電阻": "Resistansi S.R",
         "公模": "Mold male", "母模": "Mold female", "壓法": "Metode tekan", "正壓正放": "Tekanan positif", "反壓反放": "Tekanan balik", "水溫機": "Mesin suhu air",
-        "前進 1": "Maju 1", "前進 2": "Maju 2", "後退 2": "Mundur 2", "後退 1": "Mundur 1", "保壓切換": "Switch holding", "EL 長": "Panjang EL", "OL 長": "Panjang OL", "OW 寬": "Lebar OW", "NO": "NO",
+        "前進 1": "Maju 1", "前進 2": "Maju 2", "後退 2": "Mundur 2", "後退 1": "Mundur 1", "保壓切換": "Switch holding", "EL 長": "Panjang EL", "CEL": "CEL", "OL 長": "Panjang OL", "OW 寬": "Lebar OW", "COW": "COW", "NO": "NO",
         "Date": "Tanggal", "Part No.": "Part No.", "Description": "Deskripsi", "Mold No.": "No. Mold", "Machine No.": "No. Mesin", "Shift": "Shift", "Item": "Item", "Spec": "Spec", "Set": "Set", "Actual": "Aktual",
         "Mold Temperature": "Suhu Mold", "Top": "Atas", "Bottom": "Bawah", "Injection Condition": "Kondisi Injection", "Time": "Waktu", "Temperature": "Suhu", "Material": "Material", "Hopper": "Hopper", "Mold Cleaning": "Pembersihan Mold", "Confirm": "Konfirmasi", "Technician No.": "No. Teknisi"
       }
@@ -1301,7 +1301,7 @@
       ["trayWeight", "Tray重量 g"], ["sprueWeight", "料頭重量 g"], ["warpage", "彎度 Mill"], ["srResistance", "S.R 電阻 Ω"],
       ["switchByPosition", "保壓切換 위치 사용"], ["switchPosition", "保壓切換 위치값"], ["switchByTime", "保壓切換 시간 사용"], ["switchTime", "保壓切換 시간값"],
       ["maleMoldTemp", "公模 ℃"], ["femaleMoldTemp", "母模 ℃"], ["positivePressure", "正壓正放"], ["reversePressure", "反壓反放"], ["maleWaterTempMachine", "公模 水溫機"], ["femaleWaterTempMachine", "母模 水溫機"], ["bendSketch", "彎曲示意圖(冷卻完)"],
-      ["dim1El", "1 EL 長"], ["dim1Ol", "1 OL 長"], ["dim1Ow", "1 OW 寬"], ["dim2El", "2 EL 長"], ["dim2Ol", "2 OL 長"], ["dim2Ow", "2 OW 寬"],
+      ["dim1El", "1 EL 長"], ["dim1Cel", "1 CEL"], ["dim1Ol", "1 OL 長"], ["dim1Ow", "1 OW 寬"], ["dim1Cow", "1 COW"], ["dim2El", "2 EL 長"], ["dim2Cel", "2 CEL"], ["dim2Ol", "2 OL 長"], ["dim2Ow", "2 OW 寬"], ["dim2Cow", "2 COW"],
       ["technician", "技術員"], ["notes", "備註"]
     ];
 
@@ -1311,7 +1311,7 @@
       ["관모 / 개모", ["closeSpeed1", "closeSpeed2", "closeSpeed3", "closeSpeedLow", "closePressure1", "closePressure2", "closePressure3", "closePressureLow", "closePosition1", "closePosition2", "closePosition3", "closePositionLow", "openSpeed4", "openSpeed3", "openSpeed2", "openSpeed1", "openPressure4", "openPressure3", "openPressure2", "openPressure1", "openPosition4", "openPosition3", "openPosition2", "openPosition1"]],
       ["사출 / 보압", ["injSpeed3", "injSpeed2", "injSpeed1", "injPressure3", "injPressure2", "injPressure1", "injTime3", "injTime2", "injTime1", "holdSpeed3", "holdSpeed2", "holdSpeed1", "holdPressure3", "holdPressure2", "holdPressure1", "holdTime3", "holdTime2", "holdTime1"]],
       ["이젝터 / 계량", ["ejForwardSpeed1", "ejForwardSpeed2", "ejForwardPressure1", "ejForwardPressure2", "ejForwardPosition1", "ejForwardPosition2", "ejBackSpeed2", "ejBackSpeed1", "ejBackPressure2", "ejBackPressure1", "ejBackPosition2", "ejBackPosition1", "meltRpmPre", "meltRpm1", "meltRpm2", "meltRpmPost", "meltBackPressurePre", "meltBackPressure1", "meltBackPressure2", "meltBackPressurePost", "meltSpeedPre", "meltSpeed1", "meltSpeed2", "meltSpeedPost", "meltPressurePre", "meltPressure1", "meltPressure2", "meltPressurePost", "meltPositionPre", "meltPosition1", "meltPosition2", "meltPositionPost"]],
-      ["시간 / 금형 / 치수", ["coolingTime", "cycleTime", "dryTime", "dryTemp", "trayWeight", "sprueWeight", "warpage", "srResistance", "switchByPosition", "switchPosition", "switchByTime", "switchTime", "maleMoldTemp", "femaleMoldTemp", "positivePressure", "reversePressure", "maleWaterTempMachine", "femaleWaterTempMachine", "bendSketch", "dim1El", "dim1Ol", "dim1Ow", "dim2El", "dim2Ol", "dim2Ow"]],
+      ["시간 / 금형 / 치수", ["coolingTime", "cycleTime", "dryTime", "dryTemp", "trayWeight", "sprueWeight", "warpage", "srResistance", "switchByPosition", "switchPosition", "switchByTime", "switchTime", "maleMoldTemp", "femaleMoldTemp", "positivePressure", "reversePressure", "maleWaterTempMachine", "femaleWaterTempMachine", "bendSketch", "dim1El", "dim1Cel", "dim1Ol", "dim1Ow", "dim1Cow", "dim2El", "dim2Cel", "dim2Ol", "dim2Ow", "dim2Cow"]],
       ["비고", ["notes"]]
     ];
 
@@ -2093,8 +2093,11 @@
       };
       if (simple[key]) return simple[key];
 
-      const dim = key.match(/^dim([12])(El|Ol|Ow)$/);
-      if (dim) return `${dim[1]} ${staticText(dim[2] === "El" ? "EL 長" : dim[2] === "Ol" ? "OL 長" : "OW 寬")}`;
+      const dim = key.match(/^dim([12])(El|Cel|Ol|Ow|Cow)$/);
+      if (dim) {
+        const dimMap = { El: "EL 長", Cel: "CEL", Ol: "OL 長", Ow: "OW 寬", Cow: "COW" };
+        return `${dim[1]} ${staticText(dimMap[dim[2]])}`;
+      }
 
       const closeOpen = key.match(/^(close|open)(Speed|Pressure|Position)(Low|[1-4])$/);
       if (closeOpen) {
