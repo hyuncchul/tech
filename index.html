@@ -787,7 +787,7 @@
                 <div class="field"><label for="partNo" data-i18n="partNo">料號 / 품번</label><input id="partNo" name="partNo" autocapitalize="characters"></div>
                 <div class="field"><label for="machine" data-i18n="machine">機台 / 기계</label><input id="machine" name="machine"></div>
                 <div class="field"><label for="moldNo" data-i18n="moldNo">模號 / 금형번호</label><input id="moldNo" name="moldNo"></div>
-                <div class="field"><label for="date" data-i18n="date">日期 / 날짜</label><input id="date" name="date" type="date"></div>
+                <div class="field"><label for="date" data-i18n="date">日期 / 날짜</label><input id="date" name="date" type="datetime-local"></div>
                 <div class="field full">
                   <span class="mini-label" data-i18n="runType">구분</span>
                   <div class="radio-row">
@@ -1056,7 +1056,7 @@
             <div class="section-title" data-i18n="inspectionTitle">일일 조건 점검표</div>
             <div class="section-body">
               <div class="field-grid two-items">
-                <div class="field"><label for="inspectionDate">Date</label><input id="inspectionDate" name="date" type="date"></div>
+                <div class="field"><label for="inspectionDate">Date</label><input id="inspectionDate" name="date" type="datetime-local"></div>
           <div class="field"><label for="inspectionPartNo">Part No.</label><input id="inspectionPartNo" name="partNo" list="partNumberList"></div>
                 <div class="field full"><label for="inspectionDescription">Description</label><input id="inspectionDescription" name="description"></div>
                 <div class="field"><label for="inspectionMoldNo">Mold No.</label><input id="inspectionMoldNo" name="moldNo"></div>
@@ -1373,9 +1373,8 @@
     initialize();
 
     function initialize() {
-      const today = new Date().toISOString().slice(0, 10);
-      form.elements.date.value = today;
-      inspectionForm.elements.date.value = today;
+      form.elements.date.value = localDateTimeValue();
+      inspectionForm.elements.date.value = localDateTimeValue();
       document.getElementById("cloudUrl").value = localStorage.getItem(CLOUD_URL_KEY) || "";
       applyLanguage();
       ensureParts();
@@ -1447,7 +1446,7 @@
         } else if (element.type === "checkbox") {
           element.checked = Boolean(record[key]);
         } else {
-          element.value = record[key] || "";
+          element.value = key === "date" ? normalizeDateTimeInput(record[key]) : (record[key] || "");
         }
       });
     }
@@ -1455,7 +1454,7 @@
     function resetForm() {
       form.reset();
       form.elements.runType.value = "量產";
-      form.elements.date.value = new Date().toISOString().slice(0, 10);
+      form.elements.date.value = localDateTimeValue();
       state.editingId = null;
       document.getElementById("saveRecord").textContent = t("save");
       document.getElementById("editBadge").textContent = "";
@@ -1486,7 +1485,7 @@
         return;
       }
       const { id, createdAt, updatedAt, ...copy } = state.records[0];
-      fillForm({ ...copy, date: new Date().toISOString().slice(0, 10) });
+      fillForm({ ...copy, date: localDateTimeValue() });
       state.editingId = null;
       document.getElementById("saveRecord").textContent = t("save");
       document.getElementById("editBadge").textContent = "";
@@ -1536,7 +1535,7 @@
 
     function resetInspectionForm() {
       inspectionForm.reset();
-      inspectionForm.elements.date.value = new Date().toISOString().slice(0, 10);
+      inspectionForm.elements.date.value = localDateTimeValue();
     }
 
     function renderInspections() {
@@ -1640,7 +1639,7 @@
       const date = document.getElementById("filterDate").value;
       const rows = state.records.filter((record) => {
         const searchSource = [record.partNumber, record.partNo, record.machine, record.moldNo, record.technician, record.notes].join(" ").toLowerCase();
-        return (!query || searchSource.includes(query)) && (!date || record.date === date);
+        return (!query || searchSource.includes(query)) && (!date || String(record.date || "").startsWith(date));
       });
 
       if (!rows.length) {
@@ -1996,7 +1995,7 @@
         partNo: "SAMPLE-001",
         machine: "CH-120T",
         moldNo: "MOLD-A1",
-        date: new Date().toISOString().slice(0, 10),
+        date: localDateTimeValue(),
         runType: "量產",
         nozzleTemp: "230",
         barrelTemp1: "225",
@@ -2175,6 +2174,7 @@
     }
 
     function handlePartNumberInput() {
+      form.elements.date.value = localDateTimeValue();
       const part = findPart(form.elements.partNumber.value);
       if (part) {
         form.elements.partNo.value = part.partNo || "";
@@ -2182,6 +2182,7 @@
     }
 
     function handleInspectionPartInput() {
+      inspectionForm.elements.date.value = localDateTimeValue();
       const part = findPart(inspectionForm.elements.partNo.value);
       if (part) {
         inspectionForm.elements.description.value = part.partNo || "";
@@ -2338,6 +2339,20 @@
 
     function dateStamp() {
       return new Date().toISOString().slice(0, 10).replaceAll("-", "");
+    }
+
+    function localDateTimeValue(date = new Date()) {
+      const offsetMs = date.getTimezoneOffset() * 60000;
+      return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+    }
+
+    function normalizeDateTimeInput(value) {
+      if (!value) return "";
+      const text = String(value);
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) return text.slice(0, 16);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return `${text}T00:00`;
+      const parsed = new Date(text);
+      return Number.isNaN(parsed.getTime()) ? text : localDateTimeValue(parsed);
     }
 
     function showToast(message) {
