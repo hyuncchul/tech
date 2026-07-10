@@ -1371,7 +1371,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 
-  <input id="photoInput" type="file" accept="image/*" capture="environment" multiple hidden>
+  <input id="photoInput" type="file" accept="image/*" capture="environment" hidden>
 
   <div class="photo-modal" id="photoModal" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
     <div class="photo-dialog">
@@ -1381,10 +1381,20 @@
       </div>
       <div class="photo-dialog-body">
         <div class="photo-status" id="photoStatus"></div>
+        <div id="pendingPhotoPanel" class="hidden">
+          <div class="photo-card" style="max-width:420px;margin:0 auto 12px">
+            <img id="pendingPhotoPreview" alt="Pending photo preview" style="cursor:default">
+            <div class="photo-card-info">
+              <div class="photo-card-name" id="pendingPhotoName"></div>
+            </div>
+          </div>
+        </div>
         <div class="photo-grid" id="photoGrid"></div>
       </div>
       <div class="photo-dialog-foot">
-        <button class="primary" type="button" id="photoModalAdd" data-i18n="addPhoto">사진 추가</button>
+        <button class="primary hidden" type="button" id="savePendingPhoto" data-i18n="savePhoto">사진 저장</button>
+        <button class="hidden" type="button" id="cancelPendingPhoto" data-i18n="cancelPhoto">취소</button>
+        <button class="primary" type="button" id="photoModalAdd" data-i18n="takePhoto">사진 촬영</button>
         <button type="button" id="photoModalClose" data-i18n="close">닫기</button>
       </div>
     </div>
@@ -1432,7 +1442,7 @@
         noDelete: "삭제할 자료가 없습니다.", deleteAllConfirm: "저장된 모든 사출조건표를 삭제할까요?", deletedAll: "전체 삭제되었습니다.",
         empty: "저장된 내용이 없습니다.<br>입력 화면에서 첫 기록을 저장해 주세요.", untitled: "무제 기록", noDate: "날짜 없음", machineMeta: "기계", moldMeta: "금형", technicianMeta: "기술원",
         view: "내용 보기", edit: "수정", delete: "삭제", noExport: "저장할 자료가 없습니다.", importMissing: "records 배열이 없습니다.", importDone: "백업을 불러왔습니다.", importFailed: "불러오기 실패", sampleAdded: "샘플 1건을 추가했습니다.",
-        partsTitle: "Part Number 관리", partSearch: "Part 검색", partSearchPlaceholder: "Part Number / 품번", savePart: "Part 저장", partSaved: "Part 저장되었습니다.", partDeleted: "Part 삭제되었습니다.", partRequired: "Part Number를 입력해 주세요.", noPartData: "Part 자료가 없습니다.", inspectionTitle: "일일 조건 점검표", inspectionRecords: "점검표 조회", inspectionSaved: "점검표가 저장되었습니다.", noInspectionData: "저장된 점검표가 없습니다.", exportInspectionExcel: "점검표 Excel 저장", inspectionSearchPlaceholder: "날짜, Part No., Description, 금형, 기계, 기술자 번호", compareDifferences: "차이점 찾기", clearSelection: "선택 해제", selectTwo: "비교할 기록 2개를 선택해 주세요.", compareTitle: "차이점 비교", close: "닫기", noDifferences: "두 기록의 입력값이 동일합니다.", differenceSummary: "개 항목에서 차이가 확인되었습니다.", selectForCompare: "비교 선택", inspectionCompareGuide: "비교할 점검표 2개를 선택하세요.", addPhoto: "사진 추가", viewPhotos: "사진 보기", photoGallery: "사진 보기", photoLimit: "사진은 기록당 최대 5장까지 저장할 수 있습니다.", photoUploading: "사진 업로드 중...", photoUploaded: "사진이 저장되었습니다.", photoLoadFailed: "사진을 불러오지 못했습니다.", photoUploadFailed: "사진 업로드에 실패했습니다.", photoDeleteConfirm: "이 사진을 삭제할까요?", photoDeleted: "사진이 삭제되었습니다.", photoEmpty: "저장된 사진이 없습니다.", photoCloudRequired: "먼저 저장 메뉴에서 Google Apps Script URL을 설정해 주세요.", photoTooMany: "최대 5장까지만 저장할 수 있습니다.", deletePhoto: "사진 삭제"
+        partsTitle: "Part Number 관리", partSearch: "Part 검색", partSearchPlaceholder: "Part Number / 품번", savePart: "Part 저장", partSaved: "Part 저장되었습니다.", partDeleted: "Part 삭제되었습니다.", partRequired: "Part Number를 입력해 주세요.", noPartData: "Part 자료가 없습니다.", inspectionTitle: "일일 조건 점검표", inspectionRecords: "점검표 조회", inspectionSaved: "점검표가 저장되었습니다.", noInspectionData: "저장된 점검표가 없습니다.", exportInspectionExcel: "점검표 Excel 저장", inspectionSearchPlaceholder: "날짜, Part No., Description, 금형, 기계, 기술자 번호", compareDifferences: "차이점 찾기", clearSelection: "선택 해제", selectTwo: "비교할 기록 2개를 선택해 주세요.", compareTitle: "차이점 비교", close: "닫기", noDifferences: "두 기록의 입력값이 동일합니다.", differenceSummary: "개 항목에서 차이가 확인되었습니다.", selectForCompare: "비교 선택", inspectionCompareGuide: "비교할 점검표 2개를 선택하세요.", addPhoto: "사진 추가", viewPhotos: "사진 보기", photoGallery: "사진 보기", photoLimit: "사진은 기록당 최대 5장까지 저장할 수 있습니다.", photoUploading: "사진 업로드 중...", photoUploaded: "사진이 저장되었습니다.", photoLoadFailed: "사진을 불러오지 못했습니다.", photoUploadFailed: "사진 업로드에 실패했습니다.", photoDeleteConfirm: "이 사진을 삭제할까요?", photoDeleted: "사진이 삭제되었습니다.", photoEmpty: "저장된 사진이 없습니다.", photoCloudRequired: "먼저 저장 메뉴에서 Google Apps Script URL을 설정해 주세요.", photoTooMany: "최대 5장까지만 저장할 수 있습니다.", deletePhoto: "사진 삭제", takePhoto: "사진 촬영", savePhoto: "사진 저장", cancelPhoto: "취소", photoReady: "사진을 확인한 후 저장해 주세요.", photoSavedContinue: "사진이 저장되었습니다. 필요하면 다시 촬영하세요."
       },
       en: {
         appTitle: "Injection Molding Conditions", tabInput: "Input", tabRecords: "Records", tabBackup: "Save", tabParts: "Parts", tabInspection: "Inspection",
@@ -1450,7 +1460,7 @@
         noDelete: "No data to delete.", deleteAllConfirm: "Delete all saved condition records?", deletedAll: "All records deleted.",
         empty: "No saved records.<br>Save the first record from the input screen.", untitled: "Untitled record", noDate: "No date", machineMeta: "Machine", moldMeta: "Mold", technicianMeta: "Technician",
         view: "View", edit: "Edit", delete: "Delete", noExport: "No data to save.", importMissing: "No records array.", importDone: "Backup loaded.", importFailed: "Import failed", sampleAdded: "Sample added.",
-        partsTitle: "Part Number Management", partSearch: "Part Search", partSearchPlaceholder: "Part Number / material no.", savePart: "Save Part", partSaved: "Part saved.", partDeleted: "Part deleted.", partRequired: "Enter a Part Number.", noPartData: "No part data.", inspectionTitle: "Daily Condition Check Sheet", inspectionRecords: "Inspection Records", inspectionSaved: "Inspection saved.", noInspectionData: "No inspection records.", exportInspectionExcel: "Save Inspection Excel", inspectionSearchPlaceholder: "Date, Part No., description, mold, machine, technician no.", compareDifferences: "Find Differences", clearSelection: "Clear Selection", selectTwo: "Select exactly two records to compare.", compareTitle: "Difference Comparison", close: "Close", noDifferences: "The two records have identical entered values.", differenceSummary: "different fields were found.", selectForCompare: "Select to compare", inspectionCompareGuide: "Select two inspection records to compare.", addPhoto: "Add Photo", viewPhotos: "View Photos", photoGallery: "Photo Gallery", photoLimit: "Up to 5 photos can be stored per record.", photoUploading: "Uploading photos...", photoUploaded: "Photos saved.", photoLoadFailed: "Could not load photos.", photoUploadFailed: "Photo upload failed.", photoDeleteConfirm: "Delete this photo?", photoDeleted: "Photo deleted.", photoEmpty: "No saved photos.", photoCloudRequired: "Set the Google Apps Script URL in the Save menu first.", photoTooMany: "A maximum of 5 photos is allowed.", deletePhoto: "Delete Photo"
+        partsTitle: "Part Number Management", partSearch: "Part Search", partSearchPlaceholder: "Part Number / material no.", savePart: "Save Part", partSaved: "Part saved.", partDeleted: "Part deleted.", partRequired: "Enter a Part Number.", noPartData: "No part data.", inspectionTitle: "Daily Condition Check Sheet", inspectionRecords: "Inspection Records", inspectionSaved: "Inspection saved.", noInspectionData: "No inspection records.", exportInspectionExcel: "Save Inspection Excel", inspectionSearchPlaceholder: "Date, Part No., description, mold, machine, technician no.", compareDifferences: "Find Differences", clearSelection: "Clear Selection", selectTwo: "Select exactly two records to compare.", compareTitle: "Difference Comparison", close: "Close", noDifferences: "The two records have identical entered values.", differenceSummary: "different fields were found.", selectForCompare: "Select to compare", inspectionCompareGuide: "Select two inspection records to compare.", addPhoto: "Add Photo", viewPhotos: "View Photos", photoGallery: "Photo Gallery", photoLimit: "Up to 5 photos can be stored per record.", photoUploading: "Uploading photos...", photoUploaded: "Photos saved.", photoLoadFailed: "Could not load photos.", photoUploadFailed: "Photo upload failed.", photoDeleteConfirm: "Delete this photo?", photoDeleted: "Photo deleted.", photoEmpty: "No saved photos.", photoCloudRequired: "Set the Google Apps Script URL in the Save menu first.", photoTooMany: "A maximum of 5 photos is allowed.", deletePhoto: "Delete Photo", takePhoto: "Take Photo", savePhoto: "Save Photo", cancelPhoto: "Cancel", photoReady: "Review the photo and then save it.", photoSavedContinue: "Photo saved. Take another if needed."
       },
       "zh-TW": {
         appTitle: "射出成型條件表管理", tabInput: "輸入", tabRecords: "查詢", tabBackup: "儲存", tabParts: "Part 管理", tabInspection: "檢查表",
@@ -1468,7 +1478,7 @@
         noDelete: "沒有可刪除的資料。", deleteAllConfirm: "要刪除所有已儲存條件表嗎？", deletedAll: "已全部刪除。",
         empty: "尚無已儲存內容。<br>請先在輸入畫面儲存第一筆。", untitled: "未命名記錄", noDate: "無日期", machineMeta: "機台", moldMeta: "模號", technicianMeta: "技術員",
         view: "查看", edit: "修改", delete: "刪除", noExport: "沒有可儲存的資料。", importMissing: "沒有 records 陣列。", importDone: "已載入備份。", importFailed: "載入失敗", sampleAdded: "已新增範例。",
-        partsTitle: "Part Number 管理", partSearch: "Part 搜尋", partSearchPlaceholder: "Part Number / 料號", savePart: "儲存 Part", partSaved: "Part 已儲存。", partDeleted: "Part 已刪除。", partRequired: "請輸入 Part Number。", noPartData: "沒有 Part 資料。", inspectionTitle: "每日條件檢查表", inspectionRecords: "檢查表查詢", inspectionSaved: "檢查表已儲存。", noInspectionData: "沒有已儲存的檢查表。", exportInspectionExcel: "儲存檢查表 Excel", inspectionSearchPlaceholder: "日期、Part No.、品名、模號、機台、技術員號", compareDifferences: "尋找差異", clearSelection: "清除選取", selectTwo: "請選擇兩筆記錄進行比較。", compareTitle: "差異比較", close: "關閉", noDifferences: "兩筆記錄的輸入值相同。", differenceSummary: "個欄位有差異。", selectForCompare: "選取比較", inspectionCompareGuide: "請選擇兩筆檢查表進行比較。", addPhoto: "新增照片", viewPhotos: "查看照片", photoGallery: "照片檢視", photoLimit: "每筆記錄最多可儲存 5 張照片。", photoUploading: "照片上傳中...", photoUploaded: "照片已儲存。", photoLoadFailed: "無法載入照片。", photoUploadFailed: "照片上傳失敗。", photoDeleteConfirm: "要刪除此照片嗎？", photoDeleted: "照片已刪除。", photoEmpty: "沒有已儲存的照片。", photoCloudRequired: "請先在儲存選單設定 Google Apps Script URL。", photoTooMany: "最多只能儲存 5 張照片。", deletePhoto: "刪除照片"
+        partsTitle: "Part Number 管理", partSearch: "Part 搜尋", partSearchPlaceholder: "Part Number / 料號", savePart: "儲存 Part", partSaved: "Part 已儲存。", partDeleted: "Part 已刪除。", partRequired: "請輸入 Part Number。", noPartData: "沒有 Part 資料。", inspectionTitle: "每日條件檢查表", inspectionRecords: "檢查表查詢", inspectionSaved: "檢查表已儲存。", noInspectionData: "沒有已儲存的檢查表。", exportInspectionExcel: "儲存檢查表 Excel", inspectionSearchPlaceholder: "日期、Part No.、品名、模號、機台、技術員號", compareDifferences: "尋找差異", clearSelection: "清除選取", selectTwo: "請選擇兩筆記錄進行比較。", compareTitle: "差異比較", close: "關閉", noDifferences: "兩筆記錄的輸入值相同。", differenceSummary: "個欄位有差異。", selectForCompare: "選取比較", inspectionCompareGuide: "請選擇兩筆檢查表進行比較。", addPhoto: "新增照片", viewPhotos: "查看照片", photoGallery: "照片檢視", photoLimit: "每筆記錄最多可儲存 5 張照片。", photoUploading: "照片上傳中...", photoUploaded: "照片已儲存。", photoLoadFailed: "無法載入照片。", photoUploadFailed: "照片上傳失敗。", photoDeleteConfirm: "要刪除此照片嗎？", photoDeleted: "照片已刪除。", photoEmpty: "沒有已儲存的照片。", photoCloudRequired: "請先在儲存選單設定 Google Apps Script URL。", photoTooMany: "最多只能儲存 5 張照片。", deletePhoto: "刪除照片", takePhoto: "拍照", savePhoto: "儲存照片", cancelPhoto: "取消", photoReady: "請確認照片後再儲存。", photoSavedContinue: "照片已儲存。如有需要可再拍照。"
       },
       vi: {
         appTitle: "Quản lý điều kiện ép phun", tabInput: "Nhập", tabRecords: "Xem", tabBackup: "Lưu", tabParts: "Quản lý Part", tabInspection: "Kiểm tra",
@@ -1486,7 +1496,7 @@
         noDelete: "Không có dữ liệu để xóa.", deleteAllConfirm: "Xóa tất cả điều kiện đã lưu?", deletedAll: "Đã xóa tất cả.",
         empty: "Chưa có dữ liệu đã lưu.<br>Hãy lưu bản ghi đầu tiên ở màn hình nhập.", untitled: "Bản ghi chưa đặt tên", noDate: "Không có ngày", machineMeta: "Máy", moldMeta: "Khuôn", technicianMeta: "Kỹ thuật viên",
         view: "Xem", edit: "Sửa", delete: "Xóa", noExport: "Không có dữ liệu để lưu.", importMissing: "Không có mảng records.", importDone: "Đã tải sao lưu.", importFailed: "Tải thất bại", sampleAdded: "Đã thêm mẫu.",
-        partsTitle: "Quản lý Part Number", partSearch: "Tìm Part", partSearchPlaceholder: "Part Number / mã liệu", savePart: "Lưu Part", partSaved: "Đã lưu Part.", partDeleted: "Đã xóa Part.", partRequired: "Nhập Part Number.", noPartData: "Không có dữ liệu Part.", inspectionTitle: "Phiếu kiểm tra điều kiện hằng ngày", inspectionRecords: "Bản ghi kiểm tra", inspectionSaved: "Đã lưu phiếu kiểm tra.", noInspectionData: "Không có bản ghi kiểm tra.", exportInspectionExcel: "Lưu Excel kiểm tra", inspectionSearchPlaceholder: "Ngày, Part No., mô tả, khuôn, máy, mã kỹ thuật viên", compareDifferences: "Tìm khác biệt", clearSelection: "Bỏ chọn", selectTwo: "Chọn đúng hai bản ghi để so sánh.", compareTitle: "So sánh khác biệt", close: "Đóng", noDifferences: "Hai bản ghi có giá trị giống nhau.", differenceSummary: "trường khác nhau được tìm thấy.", selectForCompare: "Chọn để so sánh", inspectionCompareGuide: "Chọn hai phiếu kiểm tra để so sánh.", addPhoto: "Thêm ảnh", viewPhotos: "Xem ảnh", photoGallery: "Thư viện ảnh", photoLimit: "Mỗi bản ghi có thể lưu tối đa 5 ảnh.", photoUploading: "Đang tải ảnh lên...", photoUploaded: "Đã lưu ảnh.", photoLoadFailed: "Không thể tải ảnh.", photoUploadFailed: "Tải ảnh thất bại.", photoDeleteConfirm: "Xóa ảnh này?", photoDeleted: "Đã xóa ảnh.", photoEmpty: "Không có ảnh đã lưu.", photoCloudRequired: "Hãy cài URL Google Apps Script trong mục Lưu trước.", photoTooMany: "Chỉ được lưu tối đa 5 ảnh.", deletePhoto: "Xóa ảnh"
+        partsTitle: "Quản lý Part Number", partSearch: "Tìm Part", partSearchPlaceholder: "Part Number / mã liệu", savePart: "Lưu Part", partSaved: "Đã lưu Part.", partDeleted: "Đã xóa Part.", partRequired: "Nhập Part Number.", noPartData: "Không có dữ liệu Part.", inspectionTitle: "Phiếu kiểm tra điều kiện hằng ngày", inspectionRecords: "Bản ghi kiểm tra", inspectionSaved: "Đã lưu phiếu kiểm tra.", noInspectionData: "Không có bản ghi kiểm tra.", exportInspectionExcel: "Lưu Excel kiểm tra", inspectionSearchPlaceholder: "Ngày, Part No., mô tả, khuôn, máy, mã kỹ thuật viên", compareDifferences: "Tìm khác biệt", clearSelection: "Bỏ chọn", selectTwo: "Chọn đúng hai bản ghi để so sánh.", compareTitle: "So sánh khác biệt", close: "Đóng", noDifferences: "Hai bản ghi có giá trị giống nhau.", differenceSummary: "trường khác nhau được tìm thấy.", selectForCompare: "Chọn để so sánh", inspectionCompareGuide: "Chọn hai phiếu kiểm tra để so sánh.", addPhoto: "Thêm ảnh", viewPhotos: "Xem ảnh", photoGallery: "Thư viện ảnh", photoLimit: "Mỗi bản ghi có thể lưu tối đa 5 ảnh.", photoUploading: "Đang tải ảnh lên...", photoUploaded: "Đã lưu ảnh.", photoLoadFailed: "Không thể tải ảnh.", photoUploadFailed: "Tải ảnh thất bại.", photoDeleteConfirm: "Xóa ảnh này?", photoDeleted: "Đã xóa ảnh.", photoEmpty: "Không có ảnh đã lưu.", photoCloudRequired: "Hãy cài URL Google Apps Script trong mục Lưu trước.", photoTooMany: "Chỉ được lưu tối đa 5 ảnh.", deletePhoto: "Xóa ảnh", takePhoto: "Chụp ảnh", savePhoto: "Lưu ảnh", cancelPhoto: "Hủy", photoReady: "Kiểm tra ảnh rồi lưu.", photoSavedContinue: "Đã lưu ảnh. Có thể chụp thêm nếu cần."
       },
       id: {
         appTitle: "Manajemen Kondisi Injection", tabInput: "Input", tabRecords: "Lihat", tabBackup: "Simpan", tabParts: "Kelola Part", tabInspection: "Inspeksi",
@@ -1504,7 +1514,7 @@
         noDelete: "Tidak ada data untuk dihapus.", deleteAllConfirm: "Hapus semua kondisi yang tersimpan?", deletedAll: "Semua data dihapus.",
         empty: "Belum ada data tersimpan.<br>Simpan data pertama dari layar input.", untitled: "Data tanpa nama", noDate: "Tanpa tanggal", machineMeta: "Mesin", moldMeta: "Mold", technicianMeta: "Teknisi",
         view: "Lihat", edit: "Edit", delete: "Hapus", noExport: "Tidak ada data untuk disimpan.", importMissing: "Tidak ada array records.", importDone: "Backup dimuat.", importFailed: "Gagal memuat", sampleAdded: "Contoh ditambahkan.",
-        partsTitle: "Kelola Part Number", partSearch: "Cari Part", partSearchPlaceholder: "Part Number / no. material", savePart: "Simpan Part", partSaved: "Part tersimpan.", partDeleted: "Part dihapus.", partRequired: "Masukkan Part Number.", noPartData: "Tidak ada data Part.", inspectionTitle: "Lembar Cek Kondisi Harian", inspectionRecords: "Data Inspeksi", inspectionSaved: "Inspeksi tersimpan.", noInspectionData: "Tidak ada data inspeksi.", exportInspectionExcel: "Simpan Excel Inspeksi", inspectionSearchPlaceholder: "Tanggal, Part No., deskripsi, mold, mesin, no. teknisi", compareDifferences: "Cari Perbedaan", clearSelection: "Hapus Pilihan", selectTwo: "Pilih tepat dua data untuk dibandingkan.", compareTitle: "Perbandingan Perbedaan", close: "Tutup", noDifferences: "Kedua data memiliki nilai yang sama.", differenceSummary: "kolom berbeda ditemukan.", selectForCompare: "Pilih untuk dibandingkan", inspectionCompareGuide: "Pilih dua data inspeksi untuk dibandingkan.", addPhoto: "Tambah Foto", viewPhotos: "Lihat Foto", photoGallery: "Galeri Foto", photoLimit: "Maksimal 5 foto dapat disimpan per data.", photoUploading: "Mengunggah foto...", photoUploaded: "Foto tersimpan.", photoLoadFailed: "Foto tidak dapat dimuat.", photoUploadFailed: "Unggah foto gagal.", photoDeleteConfirm: "Hapus foto ini?", photoDeleted: "Foto dihapus.", photoEmpty: "Belum ada foto tersimpan.", photoCloudRequired: "Atur URL Google Apps Script di menu Simpan terlebih dahulu.", photoTooMany: "Maksimal 5 foto.", deletePhoto: "Hapus Foto"
+        partsTitle: "Kelola Part Number", partSearch: "Cari Part", partSearchPlaceholder: "Part Number / no. material", savePart: "Simpan Part", partSaved: "Part tersimpan.", partDeleted: "Part dihapus.", partRequired: "Masukkan Part Number.", noPartData: "Tidak ada data Part.", inspectionTitle: "Lembar Cek Kondisi Harian", inspectionRecords: "Data Inspeksi", inspectionSaved: "Inspeksi tersimpan.", noInspectionData: "Tidak ada data inspeksi.", exportInspectionExcel: "Simpan Excel Inspeksi", inspectionSearchPlaceholder: "Tanggal, Part No., deskripsi, mold, mesin, no. teknisi", compareDifferences: "Cari Perbedaan", clearSelection: "Hapus Pilihan", selectTwo: "Pilih tepat dua data untuk dibandingkan.", compareTitle: "Perbandingan Perbedaan", close: "Tutup", noDifferences: "Kedua data memiliki nilai yang sama.", differenceSummary: "kolom berbeda ditemukan.", selectForCompare: "Pilih untuk dibandingkan", inspectionCompareGuide: "Pilih dua data inspeksi untuk dibandingkan.", addPhoto: "Tambah Foto", viewPhotos: "Lihat Foto", photoGallery: "Galeri Foto", photoLimit: "Maksimal 5 foto dapat disimpan per data.", photoUploading: "Mengunggah foto...", photoUploaded: "Foto tersimpan.", photoLoadFailed: "Foto tidak dapat dimuat.", photoUploadFailed: "Unggah foto gagal.", photoDeleteConfirm: "Hapus foto ini?", photoDeleted: "Foto dihapus.", photoEmpty: "Belum ada foto tersimpan.", photoCloudRequired: "Atur URL Google Apps Script di menu Simpan terlebih dahulu.", photoTooMany: "Maksimal 5 foto.", deletePhoto: "Hapus Foto", takePhoto: "Ambil Foto", savePhoto: "Simpan Foto", cancelPhoto: "Batal", photoReady: "Periksa foto lalu simpan.", photoSavedContinue: "Foto tersimpan. Ambil lagi jika perlu."
       }
     };
     const STATIC_TEXT = {
@@ -1570,6 +1580,7 @@
       activePhotoRecordId: "",
       activePhotoRecordTitle: "",
       activePhotos: [],
+      pendingPhoto: null,
       language: localStorage.getItem(LANGUAGE_KEY) || "ko"
     };
 
@@ -1626,6 +1637,11 @@
     const photoStatus = document.getElementById("photoStatus");
     const photoPreview = document.getElementById("photoPreview");
     const photoPreviewImage = document.getElementById("photoPreviewImage");
+    const pendingPhotoPanel = document.getElementById("pendingPhotoPanel");
+    const pendingPhotoPreview = document.getElementById("pendingPhotoPreview");
+    const pendingPhotoName = document.getElementById("pendingPhotoName");
+    const savePendingPhotoButton = document.getElementById("savePendingPhoto");
+    const cancelPendingPhotoButton = document.getElementById("cancelPendingPhoto");
 
     languageSelect.value = state.language;
     languageSelect.addEventListener("change", () => {
@@ -1691,6 +1707,8 @@
     });
     photoInput.addEventListener("change", handlePhotoSelection);
     document.getElementById("photoModalAdd").addEventListener("click", choosePhotosForActiveRecord);
+    savePendingPhotoButton.addEventListener("click", savePendingPhoto);
+    cancelPendingPhotoButton.addEventListener("click", clearPendingPhoto);
     document.getElementById("photoModalClose").addEventListener("click", closePhotoModal);
     document.getElementById("photoModalCloseTop").addEventListener("click", closePhotoModal);
     document.getElementById("photoPreviewClose").addEventListener("click", closePhotoPreview);
@@ -2091,41 +2109,87 @@
     }
 
     async function handlePhotoSelection(event) {
-      const files = Array.from(event.target.files || []).filter((file) => file.type.startsWith("image/"));
+      const file = Array.from(event.target.files || []).find((item) => item.type.startsWith("image/"));
       event.target.value = "";
+      if (!file || !state.activePhotoRecordId) return;
 
-      if (!files.length || !state.activePhotoRecordId) return;
-
-      const available = Math.max(0, 5 - state.activePhotos.length);
-      if (!available) {
+      if (state.activePhotos.length >= 5) {
         showToast(t("photoTooMany"));
         return;
       }
 
-      const selected = files.slice(0, available);
-      if (files.length > available) showToast(t("photoTooMany"));
+      try {
+        photoStatus.textContent = t("photoUploading");
+        const compressed = await compressPhoto(file);
+        state.pendingPhoto = {
+          recordId: state.activePhotoRecordId,
+          recordTitle: state.activePhotoRecordTitle,
+          fileName: buildPhotoFileName(file.name, 0),
+          mimeType: compressed.mimeType,
+          base64: compressed.base64,
+          dataUrl: compressed.dataUrl
+        };
+        pendingPhotoPreview.src = compressed.dataUrl;
+        pendingPhotoName.textContent = state.pendingPhoto.fileName;
+        pendingPhotoPanel.classList.remove("hidden");
+        savePendingPhotoButton.classList.remove("hidden");
+        cancelPendingPhotoButton.classList.remove("hidden");
+        document.getElementById("photoModalAdd").classList.add("hidden");
+        photoGrid.classList.add("hidden");
+        photoStatus.textContent = t("photoReady");
+        photoModal.classList.add("show");
+        document.body.style.overflow = "hidden";
+      } catch (error) {
+        showToast(`${t("photoUploadFailed")}: ${error.message}`);
+      }
+    }
 
+    async function savePendingPhoto() {
+      if (!state.pendingPhoto) return;
+
+      const beforeCount = state.activePhotos.length;
+      savePendingPhotoButton.disabled = true;
+      cancelPendingPhotoButton.disabled = true;
       photoStatus.textContent = t("photoUploading");
-      photoModal.classList.add("show");
-      document.body.style.overflow = "hidden";
 
       try {
-        for (let index = 0; index < selected.length; index += 1) {
-          const compressed = await compressPhoto(selected[index]);
-          await uploadPhotoToDrive({
-            recordId: state.activePhotoRecordId,
-            recordTitle: state.activePhotoRecordTitle,
-            fileName: buildPhotoFileName(selected[index].name, index),
-            mimeType: compressed.mimeType,
-            base64: compressed.base64
-          });
-        }
-        showToast(t("photoUploaded"));
+        await uploadPhotoToDrive(state.pendingPhoto);
+        const confirmed = await waitForPhotoCount(state.activePhotoRecordId, beforeCount + 1);
+        if (!confirmed) throw new Error("Upload confirmation timeout");
+
+        clearPendingPhoto();
         await openPhotoGallery(state.activePhotoRecordId, state.activePhotoRecordTitle);
+        photoStatus.textContent = t("photoSavedContinue");
+        showToast(t("photoSavedContinue"));
       } catch (error) {
         photoStatus.textContent = `${t("photoUploadFailed")}: ${error.message}`;
         showToast(`${t("photoUploadFailed")}: ${error.message}`);
+      } finally {
+        savePendingPhotoButton.disabled = false;
+        cancelPendingPhotoButton.disabled = false;
       }
+    }
+
+    function clearPendingPhoto() {
+      state.pendingPhoto = null;
+      pendingPhotoPreview.src = "";
+      pendingPhotoName.textContent = "";
+      pendingPhotoPanel.classList.add("hidden");
+      savePendingPhotoButton.classList.add("hidden");
+      cancelPendingPhotoButton.classList.add("hidden");
+      document.getElementById("photoModalAdd").classList.remove("hidden");
+      photoGrid.classList.remove("hidden");
+    }
+
+    async function waitForPhotoCount(recordId, expectedCount) {
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        try {
+          const photos = await requestPhotoList(recordId, false);
+          if (photos.length >= expectedCount) return true;
+        } catch (_) {}
+      }
+      return false;
     }
 
     function buildPhotoFileName(originalName, index) {
@@ -2142,7 +2206,7 @@
           const image = new Image();
           image.onerror = () => reject(new Error("Image decode failed"));
           image.onload = () => {
-            const maxSide = 1600;
+            const maxSide = 1280;
             let width = image.naturalWidth;
             let height = image.naturalHeight;
             const scale = Math.min(1, maxSide / Math.max(width, height));
@@ -2157,10 +2221,11 @@
             context.fillRect(0, 0, width, height);
             context.drawImage(image, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.68);
             resolve({
               mimeType: "image/jpeg",
-              base64: dataUrl.split(",")[1]
+              base64: dataUrl.split(",")[1],
+              dataUrl: dataUrl
             });
           };
           image.src = String(reader.result);
@@ -2181,13 +2246,13 @@
       form.set("mimeType", photo.mimeType);
       form.set("base64", photo.base64);
 
-      const response = await fetch(url, {
+      await fetch(url, {
         method: "POST",
+        mode: "no-cors",
         body: form
       });
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.error || "Upload failed");
-      return result;
+
+      return { ok: true };
     }
 
     async function openPhotoGallery(recordId, recordTitle) {
@@ -2321,6 +2386,7 @@
     }
 
     function closePhotoModal() {
+      clearPendingPhoto();
       photoModal.classList.remove("show");
       if (!compareModal.classList.contains("show")) document.body.style.overflow = "";
     }
