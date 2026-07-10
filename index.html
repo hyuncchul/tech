@@ -730,6 +730,137 @@
       background: #fff7ed;
     }
 
+    .photo-button {
+      margin-left: auto;
+    }
+
+    .photo-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 110;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.68);
+    }
+
+    .photo-modal.show {
+      display: flex;
+    }
+
+    .photo-dialog {
+      width: min(980px, 100%);
+      max-height: 92vh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .photo-dialog-head,
+    .photo-dialog-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .photo-dialog-foot {
+      justify-content: flex-end;
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .photo-dialog-body {
+      overflow: auto;
+      padding: 12px;
+    }
+
+    .photo-status {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .photo-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .photo-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      cursor: zoom-in;
+      background: var(--soft);
+    }
+
+    .photo-card-info {
+      display: grid;
+      gap: 6px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .photo-card-name {
+      overflow-wrap: anywhere;
+      font-weight: 800;
+    }
+
+    .photo-preview {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.88);
+    }
+
+    .photo-preview.show {
+      display: flex;
+    }
+
+    .photo-preview img {
+      max-width: 96vw;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+
+    .photo-preview button {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      min-width: 44px;
+      border-color: rgba(255,255,255,.5);
+      background: rgba(0,0,0,.45);
+      color: #fff;
+      font-size: 24px;
+    }
+
+    @media (min-width: 780px) {
+      .photo-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
     @media (min-width: 780px) {
       .topbar {
         padding: 9px 12px 8px;
@@ -827,6 +958,8 @@
       .action-bar,
       .compare-tools,
       .compare-modal,
+      .photo-modal,
+      .photo-preview,
       .toast {
         display: none !important;
       }
@@ -1222,7 +1355,8 @@
               <label for="inspectionSearch" data-i18n="search">검색</label>
               <input id="inspectionSearch" data-i18n-placeholder="inspectionSearchPlaceholder" placeholder="날짜, Part No., Description, 금형, 기계, 기술자 번호">
             </div>
-            <div class="compare-tools">
+            <div class="compare-tools" id="inspectionCompareTools">
+              <strong data-i18n="inspectionCompareGuide">비교할 점검표 2개를 선택하세요.</strong>
               <button class="primary small" type="button" id="compareInspections" data-i18n="compareDifferences">차이점 찾기</button>
               <button class="small" type="button" id="clearInspectionCompare" data-i18n="clearSelection">선택 해제</button>
               <span class="compare-count" id="inspectionCompareCount">0 / 2</span>
@@ -1235,6 +1369,31 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+  <input id="photoInput" type="file" accept="image/*" capture="environment" multiple hidden>
+
+  <div class="photo-modal" id="photoModal" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
+    <div class="photo-dialog">
+      <div class="photo-dialog-head">
+        <strong id="photoModalTitle" data-i18n="photoGallery">사진 보기</strong>
+        <button class="small" type="button" id="photoModalCloseTop" aria-label="Close">×</button>
+      </div>
+      <div class="photo-dialog-body">
+        <div class="photo-status" id="photoStatus"></div>
+        <div class="photo-grid" id="photoGrid"></div>
+      </div>
+      <div class="photo-dialog-foot">
+        <button class="primary" type="button" id="photoModalAdd" data-i18n="addPhoto">사진 추가</button>
+        <button type="button" id="photoModalClose" data-i18n="close">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="photo-preview" id="photoPreview">
+    <button type="button" id="photoPreviewClose" aria-label="Close">×</button>
+    <img id="photoPreviewImage" alt="">
+  </div>
 
   <div class="compare-modal" id="compareModal" role="dialog" aria-modal="true" aria-labelledby="compareModalTitle">
     <div class="compare-dialog">
@@ -1273,7 +1432,7 @@
         noDelete: "삭제할 자료가 없습니다.", deleteAllConfirm: "저장된 모든 사출조건표를 삭제할까요?", deletedAll: "전체 삭제되었습니다.",
         empty: "저장된 내용이 없습니다.<br>입력 화면에서 첫 기록을 저장해 주세요.", untitled: "무제 기록", noDate: "날짜 없음", machineMeta: "기계", moldMeta: "금형", technicianMeta: "기술원",
         view: "내용 보기", edit: "수정", delete: "삭제", noExport: "저장할 자료가 없습니다.", importMissing: "records 배열이 없습니다.", importDone: "백업을 불러왔습니다.", importFailed: "불러오기 실패", sampleAdded: "샘플 1건을 추가했습니다.",
-        partsTitle: "Part Number 관리", partSearch: "Part 검색", partSearchPlaceholder: "Part Number / 품번", savePart: "Part 저장", partSaved: "Part 저장되었습니다.", partDeleted: "Part 삭제되었습니다.", partRequired: "Part Number를 입력해 주세요.", noPartData: "Part 자료가 없습니다.", inspectionTitle: "일일 조건 점검표", inspectionRecords: "점검표 조회", inspectionSaved: "점검표가 저장되었습니다.", noInspectionData: "저장된 점검표가 없습니다.", exportInspectionExcel: "점검표 Excel 저장", inspectionSearchPlaceholder: "날짜, Part No., Description, 금형, 기계, 기술자 번호", compareDifferences: "차이점 찾기", clearSelection: "선택 해제", selectTwo: "비교할 기록 2개를 선택해 주세요.", compareTitle: "차이점 비교", close: "닫기", noDifferences: "두 기록의 입력값이 동일합니다.", differenceSummary: "개 항목에서 차이가 확인되었습니다.", selectForCompare: "비교 선택"
+        partsTitle: "Part Number 관리", partSearch: "Part 검색", partSearchPlaceholder: "Part Number / 품번", savePart: "Part 저장", partSaved: "Part 저장되었습니다.", partDeleted: "Part 삭제되었습니다.", partRequired: "Part Number를 입력해 주세요.", noPartData: "Part 자료가 없습니다.", inspectionTitle: "일일 조건 점검표", inspectionRecords: "점검표 조회", inspectionSaved: "점검표가 저장되었습니다.", noInspectionData: "저장된 점검표가 없습니다.", exportInspectionExcel: "점검표 Excel 저장", inspectionSearchPlaceholder: "날짜, Part No., Description, 금형, 기계, 기술자 번호", compareDifferences: "차이점 찾기", clearSelection: "선택 해제", selectTwo: "비교할 기록 2개를 선택해 주세요.", compareTitle: "차이점 비교", close: "닫기", noDifferences: "두 기록의 입력값이 동일합니다.", differenceSummary: "개 항목에서 차이가 확인되었습니다.", selectForCompare: "비교 선택", inspectionCompareGuide: "비교할 점검표 2개를 선택하세요.", addPhoto: "사진 추가", viewPhotos: "사진 보기", photoGallery: "사진 보기", photoLimit: "사진은 기록당 최대 5장까지 저장할 수 있습니다.", photoUploading: "사진 업로드 중...", photoUploaded: "사진이 저장되었습니다.", photoLoadFailed: "사진을 불러오지 못했습니다.", photoUploadFailed: "사진 업로드에 실패했습니다.", photoDeleteConfirm: "이 사진을 삭제할까요?", photoDeleted: "사진이 삭제되었습니다.", photoEmpty: "저장된 사진이 없습니다.", photoCloudRequired: "먼저 저장 메뉴에서 Google Apps Script URL을 설정해 주세요.", photoTooMany: "최대 5장까지만 저장할 수 있습니다.", deletePhoto: "사진 삭제"
       },
       en: {
         appTitle: "Injection Molding Conditions", tabInput: "Input", tabRecords: "Records", tabBackup: "Save", tabParts: "Parts", tabInspection: "Inspection",
@@ -1291,7 +1450,7 @@
         noDelete: "No data to delete.", deleteAllConfirm: "Delete all saved condition records?", deletedAll: "All records deleted.",
         empty: "No saved records.<br>Save the first record from the input screen.", untitled: "Untitled record", noDate: "No date", machineMeta: "Machine", moldMeta: "Mold", technicianMeta: "Technician",
         view: "View", edit: "Edit", delete: "Delete", noExport: "No data to save.", importMissing: "No records array.", importDone: "Backup loaded.", importFailed: "Import failed", sampleAdded: "Sample added.",
-        partsTitle: "Part Number Management", partSearch: "Part Search", partSearchPlaceholder: "Part Number / material no.", savePart: "Save Part", partSaved: "Part saved.", partDeleted: "Part deleted.", partRequired: "Enter a Part Number.", noPartData: "No part data.", inspectionTitle: "Daily Condition Check Sheet", inspectionRecords: "Inspection Records", inspectionSaved: "Inspection saved.", noInspectionData: "No inspection records.", exportInspectionExcel: "Save Inspection Excel", inspectionSearchPlaceholder: "Date, Part No., description, mold, machine, technician no.", compareDifferences: "Find Differences", clearSelection: "Clear Selection", selectTwo: "Select exactly two records to compare.", compareTitle: "Difference Comparison", close: "Close", noDifferences: "The two records have identical entered values.", differenceSummary: "different fields were found.", selectForCompare: "Select to compare"
+        partsTitle: "Part Number Management", partSearch: "Part Search", partSearchPlaceholder: "Part Number / material no.", savePart: "Save Part", partSaved: "Part saved.", partDeleted: "Part deleted.", partRequired: "Enter a Part Number.", noPartData: "No part data.", inspectionTitle: "Daily Condition Check Sheet", inspectionRecords: "Inspection Records", inspectionSaved: "Inspection saved.", noInspectionData: "No inspection records.", exportInspectionExcel: "Save Inspection Excel", inspectionSearchPlaceholder: "Date, Part No., description, mold, machine, technician no.", compareDifferences: "Find Differences", clearSelection: "Clear Selection", selectTwo: "Select exactly two records to compare.", compareTitle: "Difference Comparison", close: "Close", noDifferences: "The two records have identical entered values.", differenceSummary: "different fields were found.", selectForCompare: "Select to compare", inspectionCompareGuide: "Select two inspection records to compare.", addPhoto: "Add Photo", viewPhotos: "View Photos", photoGallery: "Photo Gallery", photoLimit: "Up to 5 photos can be stored per record.", photoUploading: "Uploading photos...", photoUploaded: "Photos saved.", photoLoadFailed: "Could not load photos.", photoUploadFailed: "Photo upload failed.", photoDeleteConfirm: "Delete this photo?", photoDeleted: "Photo deleted.", photoEmpty: "No saved photos.", photoCloudRequired: "Set the Google Apps Script URL in the Save menu first.", photoTooMany: "A maximum of 5 photos is allowed.", deletePhoto: "Delete Photo"
       },
       "zh-TW": {
         appTitle: "射出成型條件表管理", tabInput: "輸入", tabRecords: "查詢", tabBackup: "儲存", tabParts: "Part 管理", tabInspection: "檢查表",
@@ -1309,7 +1468,7 @@
         noDelete: "沒有可刪除的資料。", deleteAllConfirm: "要刪除所有已儲存條件表嗎？", deletedAll: "已全部刪除。",
         empty: "尚無已儲存內容。<br>請先在輸入畫面儲存第一筆。", untitled: "未命名記錄", noDate: "無日期", machineMeta: "機台", moldMeta: "模號", technicianMeta: "技術員",
         view: "查看", edit: "修改", delete: "刪除", noExport: "沒有可儲存的資料。", importMissing: "沒有 records 陣列。", importDone: "已載入備份。", importFailed: "載入失敗", sampleAdded: "已新增範例。",
-        partsTitle: "Part Number 管理", partSearch: "Part 搜尋", partSearchPlaceholder: "Part Number / 料號", savePart: "儲存 Part", partSaved: "Part 已儲存。", partDeleted: "Part 已刪除。", partRequired: "請輸入 Part Number。", noPartData: "沒有 Part 資料。", inspectionTitle: "每日條件檢查表", inspectionRecords: "檢查表查詢", inspectionSaved: "檢查表已儲存。", noInspectionData: "沒有已儲存的檢查表。", exportInspectionExcel: "儲存檢查表 Excel", inspectionSearchPlaceholder: "日期、Part No.、品名、模號、機台、技術員號", compareDifferences: "尋找差異", clearSelection: "清除選取", selectTwo: "請選擇兩筆記錄進行比較。", compareTitle: "差異比較", close: "關閉", noDifferences: "兩筆記錄的輸入值相同。", differenceSummary: "個欄位有差異。", selectForCompare: "選取比較"
+        partsTitle: "Part Number 管理", partSearch: "Part 搜尋", partSearchPlaceholder: "Part Number / 料號", savePart: "儲存 Part", partSaved: "Part 已儲存。", partDeleted: "Part 已刪除。", partRequired: "請輸入 Part Number。", noPartData: "沒有 Part 資料。", inspectionTitle: "每日條件檢查表", inspectionRecords: "檢查表查詢", inspectionSaved: "檢查表已儲存。", noInspectionData: "沒有已儲存的檢查表。", exportInspectionExcel: "儲存檢查表 Excel", inspectionSearchPlaceholder: "日期、Part No.、品名、模號、機台、技術員號", compareDifferences: "尋找差異", clearSelection: "清除選取", selectTwo: "請選擇兩筆記錄進行比較。", compareTitle: "差異比較", close: "關閉", noDifferences: "兩筆記錄的輸入值相同。", differenceSummary: "個欄位有差異。", selectForCompare: "選取比較", inspectionCompareGuide: "請選擇兩筆檢查表進行比較。", addPhoto: "新增照片", viewPhotos: "查看照片", photoGallery: "照片檢視", photoLimit: "每筆記錄最多可儲存 5 張照片。", photoUploading: "照片上傳中...", photoUploaded: "照片已儲存。", photoLoadFailed: "無法載入照片。", photoUploadFailed: "照片上傳失敗。", photoDeleteConfirm: "要刪除此照片嗎？", photoDeleted: "照片已刪除。", photoEmpty: "沒有已儲存的照片。", photoCloudRequired: "請先在儲存選單設定 Google Apps Script URL。", photoTooMany: "最多只能儲存 5 張照片。", deletePhoto: "刪除照片"
       },
       vi: {
         appTitle: "Quản lý điều kiện ép phun", tabInput: "Nhập", tabRecords: "Xem", tabBackup: "Lưu", tabParts: "Quản lý Part", tabInspection: "Kiểm tra",
@@ -1327,7 +1486,7 @@
         noDelete: "Không có dữ liệu để xóa.", deleteAllConfirm: "Xóa tất cả điều kiện đã lưu?", deletedAll: "Đã xóa tất cả.",
         empty: "Chưa có dữ liệu đã lưu.<br>Hãy lưu bản ghi đầu tiên ở màn hình nhập.", untitled: "Bản ghi chưa đặt tên", noDate: "Không có ngày", machineMeta: "Máy", moldMeta: "Khuôn", technicianMeta: "Kỹ thuật viên",
         view: "Xem", edit: "Sửa", delete: "Xóa", noExport: "Không có dữ liệu để lưu.", importMissing: "Không có mảng records.", importDone: "Đã tải sao lưu.", importFailed: "Tải thất bại", sampleAdded: "Đã thêm mẫu.",
-        partsTitle: "Quản lý Part Number", partSearch: "Tìm Part", partSearchPlaceholder: "Part Number / mã liệu", savePart: "Lưu Part", partSaved: "Đã lưu Part.", partDeleted: "Đã xóa Part.", partRequired: "Nhập Part Number.", noPartData: "Không có dữ liệu Part.", inspectionTitle: "Phiếu kiểm tra điều kiện hằng ngày", inspectionRecords: "Bản ghi kiểm tra", inspectionSaved: "Đã lưu phiếu kiểm tra.", noInspectionData: "Không có bản ghi kiểm tra.", exportInspectionExcel: "Lưu Excel kiểm tra", inspectionSearchPlaceholder: "Ngày, Part No., mô tả, khuôn, máy, mã kỹ thuật viên", compareDifferences: "Tìm khác biệt", clearSelection: "Bỏ chọn", selectTwo: "Chọn đúng hai bản ghi để so sánh.", compareTitle: "So sánh khác biệt", close: "Đóng", noDifferences: "Hai bản ghi có giá trị giống nhau.", differenceSummary: "trường khác nhau được tìm thấy.", selectForCompare: "Chọn để so sánh"
+        partsTitle: "Quản lý Part Number", partSearch: "Tìm Part", partSearchPlaceholder: "Part Number / mã liệu", savePart: "Lưu Part", partSaved: "Đã lưu Part.", partDeleted: "Đã xóa Part.", partRequired: "Nhập Part Number.", noPartData: "Không có dữ liệu Part.", inspectionTitle: "Phiếu kiểm tra điều kiện hằng ngày", inspectionRecords: "Bản ghi kiểm tra", inspectionSaved: "Đã lưu phiếu kiểm tra.", noInspectionData: "Không có bản ghi kiểm tra.", exportInspectionExcel: "Lưu Excel kiểm tra", inspectionSearchPlaceholder: "Ngày, Part No., mô tả, khuôn, máy, mã kỹ thuật viên", compareDifferences: "Tìm khác biệt", clearSelection: "Bỏ chọn", selectTwo: "Chọn đúng hai bản ghi để so sánh.", compareTitle: "So sánh khác biệt", close: "Đóng", noDifferences: "Hai bản ghi có giá trị giống nhau.", differenceSummary: "trường khác nhau được tìm thấy.", selectForCompare: "Chọn để so sánh", inspectionCompareGuide: "Chọn hai phiếu kiểm tra để so sánh.", addPhoto: "Thêm ảnh", viewPhotos: "Xem ảnh", photoGallery: "Thư viện ảnh", photoLimit: "Mỗi bản ghi có thể lưu tối đa 5 ảnh.", photoUploading: "Đang tải ảnh lên...", photoUploaded: "Đã lưu ảnh.", photoLoadFailed: "Không thể tải ảnh.", photoUploadFailed: "Tải ảnh thất bại.", photoDeleteConfirm: "Xóa ảnh này?", photoDeleted: "Đã xóa ảnh.", photoEmpty: "Không có ảnh đã lưu.", photoCloudRequired: "Hãy cài URL Google Apps Script trong mục Lưu trước.", photoTooMany: "Chỉ được lưu tối đa 5 ảnh.", deletePhoto: "Xóa ảnh"
       },
       id: {
         appTitle: "Manajemen Kondisi Injection", tabInput: "Input", tabRecords: "Lihat", tabBackup: "Simpan", tabParts: "Kelola Part", tabInspection: "Inspeksi",
@@ -1345,7 +1504,7 @@
         noDelete: "Tidak ada data untuk dihapus.", deleteAllConfirm: "Hapus semua kondisi yang tersimpan?", deletedAll: "Semua data dihapus.",
         empty: "Belum ada data tersimpan.<br>Simpan data pertama dari layar input.", untitled: "Data tanpa nama", noDate: "Tanpa tanggal", machineMeta: "Mesin", moldMeta: "Mold", technicianMeta: "Teknisi",
         view: "Lihat", edit: "Edit", delete: "Hapus", noExport: "Tidak ada data untuk disimpan.", importMissing: "Tidak ada array records.", importDone: "Backup dimuat.", importFailed: "Gagal memuat", sampleAdded: "Contoh ditambahkan.",
-        partsTitle: "Kelola Part Number", partSearch: "Cari Part", partSearchPlaceholder: "Part Number / no. material", savePart: "Simpan Part", partSaved: "Part tersimpan.", partDeleted: "Part dihapus.", partRequired: "Masukkan Part Number.", noPartData: "Tidak ada data Part.", inspectionTitle: "Lembar Cek Kondisi Harian", inspectionRecords: "Data Inspeksi", inspectionSaved: "Inspeksi tersimpan.", noInspectionData: "Tidak ada data inspeksi.", exportInspectionExcel: "Simpan Excel Inspeksi", inspectionSearchPlaceholder: "Tanggal, Part No., deskripsi, mold, mesin, no. teknisi", compareDifferences: "Cari Perbedaan", clearSelection: "Hapus Pilihan", selectTwo: "Pilih tepat dua data untuk dibandingkan.", compareTitle: "Perbandingan Perbedaan", close: "Tutup", noDifferences: "Kedua data memiliki nilai yang sama.", differenceSummary: "kolom berbeda ditemukan.", selectForCompare: "Pilih untuk dibandingkan"
+        partsTitle: "Kelola Part Number", partSearch: "Cari Part", partSearchPlaceholder: "Part Number / no. material", savePart: "Simpan Part", partSaved: "Part tersimpan.", partDeleted: "Part dihapus.", partRequired: "Masukkan Part Number.", noPartData: "Tidak ada data Part.", inspectionTitle: "Lembar Cek Kondisi Harian", inspectionRecords: "Data Inspeksi", inspectionSaved: "Inspeksi tersimpan.", noInspectionData: "Tidak ada data inspeksi.", exportInspectionExcel: "Simpan Excel Inspeksi", inspectionSearchPlaceholder: "Tanggal, Part No., deskripsi, mold, mesin, no. teknisi", compareDifferences: "Cari Perbedaan", clearSelection: "Hapus Pilihan", selectTwo: "Pilih tepat dua data untuk dibandingkan.", compareTitle: "Perbandingan Perbedaan", close: "Tutup", noDifferences: "Kedua data memiliki nilai yang sama.", differenceSummary: "kolom berbeda ditemukan.", selectForCompare: "Pilih untuk dibandingkan", inspectionCompareGuide: "Pilih dua data inspeksi untuk dibandingkan.", addPhoto: "Tambah Foto", viewPhotos: "Lihat Foto", photoGallery: "Galeri Foto", photoLimit: "Maksimal 5 foto dapat disimpan per data.", photoUploading: "Mengunggah foto...", photoUploaded: "Foto tersimpan.", photoLoadFailed: "Foto tidak dapat dimuat.", photoUploadFailed: "Unggah foto gagal.", photoDeleteConfirm: "Hapus foto ini?", photoDeleted: "Foto dihapus.", photoEmpty: "Belum ada foto tersimpan.", photoCloudRequired: "Atur URL Google Apps Script di menu Simpan terlebih dahulu.", photoTooMany: "Maksimal 5 foto.", deletePhoto: "Hapus Foto"
       }
     };
     const STATIC_TEXT = {
@@ -1408,6 +1567,9 @@
       editingId: null,
       selectedRecordIds: [],
       selectedInspectionIds: [],
+      activePhotoRecordId: "",
+      activePhotoRecordTitle: "",
+      activePhotos: [],
       language: localStorage.getItem(LANGUAGE_KEY) || "ko"
     };
 
@@ -1458,6 +1620,12 @@
     const languageSelect = document.getElementById("languageSelect");
     const compareModal = document.getElementById("compareModal");
     const compareModalBody = document.getElementById("compareModalBody");
+    const photoInput = document.getElementById("photoInput");
+    const photoModal = document.getElementById("photoModal");
+    const photoGrid = document.getElementById("photoGrid");
+    const photoStatus = document.getElementById("photoStatus");
+    const photoPreview = document.getElementById("photoPreview");
+    const photoPreviewImage = document.getElementById("photoPreviewImage");
 
     languageSelect.value = state.language;
     languageSelect.addEventListener("change", () => {
@@ -1518,6 +1686,19 @@
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && compareModal.classList.contains("show")) closeCompareModal();
+      if (event.key === "Escape" && photoModal.classList.contains("show")) closePhotoModal();
+      if (event.key === "Escape" && photoPreview.classList.contains("show")) closePhotoPreview();
+    });
+    photoInput.addEventListener("change", handlePhotoSelection);
+    document.getElementById("photoModalAdd").addEventListener("click", choosePhotosForActiveRecord);
+    document.getElementById("photoModalClose").addEventListener("click", closePhotoModal);
+    document.getElementById("photoModalCloseTop").addEventListener("click", closePhotoModal);
+    document.getElementById("photoPreviewClose").addEventListener("click", closePhotoPreview);
+    photoModal.addEventListener("click", (event) => {
+      if (event.target === photoModal) closePhotoModal();
+    });
+    photoPreview.addEventListener("click", (event) => {
+      if (event.target === photoPreview) closePhotoPreview();
     });
 
     initialize();
@@ -1625,6 +1806,7 @@
       if (!confirm(t("deleteConfirm"))) return;
       state.records = state.records.filter((item) => item.id !== id);
       state.selectedRecordIds = state.selectedRecordIds.filter((item) => item !== id);
+      removeRecordPhotosFromCloud(id);
       persist();
       renderAll();
       showToast(t("deleted"));
@@ -1708,6 +1890,7 @@
 
       if (!rows.length) {
         area.innerHTML = `<div class="empty">${t("noInspectionData")}</div>`;
+        updateCompareCounts();
         return;
       }
 
@@ -1817,6 +2000,12 @@
       area.querySelectorAll("[data-action='select-record']").forEach((checkbox) => {
         checkbox.addEventListener("change", () => toggleCompareSelection("record", checkbox.dataset.id, checkbox.checked));
       });
+      area.querySelectorAll("[data-action='add-photo']").forEach((button) => {
+        button.addEventListener("click", () => startPhotoAdd(button.dataset.id, button.dataset.title));
+      });
+      area.querySelectorAll("[data-action='view-photos']").forEach((button) => {
+        button.addEventListener("click", () => openPhotoGallery(button.dataset.id, button.dataset.title));
+      });
       updateCompareCounts();
     }
 
@@ -1841,6 +2030,8 @@
             <button class="small" type="button" data-action="toggle">${escapeHtml(t("view"))}</button>
             <button class="small" type="button" data-action="edit" data-id="${record.id}">${escapeHtml(t("edit"))}</button>
             <button class="small danger" type="button" data-action="delete" data-id="${record.id}">${escapeHtml(t("delete"))}</button>
+            <button class="small primary photo-button" type="button" data-action="add-photo" data-id="${record.id}" data-title="${escapeHtml(record.partNumber || record.partNo || record.moldNo || t("untitled"))}">${escapeHtml(t("addPhoto"))}</button>
+            <button class="small" type="button" data-action="view-photos" data-id="${record.id}" data-title="${escapeHtml(record.partNumber || record.partNo || record.moldNo || t("untitled"))}">${escapeHtml(t("viewPhotos"))}</button>
           </div>
           <div class="detail">${detailHtml(record)}</div>
         </article>
@@ -1857,6 +2048,294 @@
         }).join("");
         return `<section class="detail-section"><h3>${escapeHtml(groupTitle(title))}</h3>${rows}</section>`;
       }).join("")}</div>`;
+    }
+
+    function configuredCloudUrl() {
+      const input = document.getElementById("cloudUrl");
+      return ((input && input.value) || localStorage.getItem(CLOUD_URL_KEY) || "").trim();
+    }
+
+    async function startPhotoAdd(recordId, recordTitle) {
+      const url = configuredCloudUrl();
+      if (!url) {
+        showToast(t("photoCloudRequired"));
+        return;
+      }
+
+      state.activePhotoRecordId = recordId;
+      state.activePhotoRecordTitle = recordTitle || t("untitled");
+
+      try {
+        const photos = await requestPhotoList(recordId, false);
+        state.activePhotos = photos;
+        if (photos.length >= 5) {
+          showToast(t("photoTooMany"));
+          await openPhotoGallery(recordId, recordTitle);
+          return;
+        }
+        photoInput.value = "";
+        photoInput.click();
+      } catch (error) {
+        showToast(`${t("photoLoadFailed")}: ${error.message}`);
+      }
+    }
+
+    async function choosePhotosForActiveRecord() {
+      if (!state.activePhotoRecordId) return;
+      if (state.activePhotos.length >= 5) {
+        showToast(t("photoTooMany"));
+        return;
+      }
+      photoInput.value = "";
+      photoInput.click();
+    }
+
+    async function handlePhotoSelection(event) {
+      const files = Array.from(event.target.files || []).filter((file) => file.type.startsWith("image/"));
+      event.target.value = "";
+
+      if (!files.length || !state.activePhotoRecordId) return;
+
+      const available = Math.max(0, 5 - state.activePhotos.length);
+      if (!available) {
+        showToast(t("photoTooMany"));
+        return;
+      }
+
+      const selected = files.slice(0, available);
+      if (files.length > available) showToast(t("photoTooMany"));
+
+      photoStatus.textContent = t("photoUploading");
+      photoModal.classList.add("show");
+      document.body.style.overflow = "hidden";
+
+      try {
+        for (let index = 0; index < selected.length; index += 1) {
+          const compressed = await compressPhoto(selected[index]);
+          await uploadPhotoToDrive({
+            recordId: state.activePhotoRecordId,
+            recordTitle: state.activePhotoRecordTitle,
+            fileName: buildPhotoFileName(selected[index].name, index),
+            mimeType: compressed.mimeType,
+            base64: compressed.base64
+          });
+        }
+        showToast(t("photoUploaded"));
+        await openPhotoGallery(state.activePhotoRecordId, state.activePhotoRecordTitle);
+      } catch (error) {
+        photoStatus.textContent = `${t("photoUploadFailed")}: ${error.message}`;
+        showToast(`${t("photoUploadFailed")}: ${error.message}`);
+      }
+    }
+
+    function buildPhotoFileName(originalName, index) {
+      const clean = String(originalName || "photo.jpg").replace(/[^\w.\-]+/g, "_");
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      return `${stamp}_${index + 1}_${clean.replace(/\.[^.]+$/, "")}.jpg`;
+    }
+
+    function compressPhoto(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("File read failed"));
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = () => reject(new Error("Image decode failed"));
+          image.onload = () => {
+            const maxSide = 1600;
+            let width = image.naturalWidth;
+            let height = image.naturalHeight;
+            const scale = Math.min(1, maxSide / Math.max(width, height));
+            width = Math.max(1, Math.round(width * scale));
+            height = Math.max(1, Math.round(height * scale));
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext("2d", { alpha: false });
+            context.fillStyle = "#ffffff";
+            context.fillRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+            resolve({
+              mimeType: "image/jpeg",
+              base64: dataUrl.split(",")[1]
+            });
+          };
+          image.src = String(reader.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function uploadPhotoToDrive(photo) {
+      const url = configuredCloudUrl();
+      if (!url) throw new Error(t("photoCloudRequired"));
+
+      const form = new URLSearchParams();
+      form.set("action", "uploadPhoto");
+      form.set("recordId", photo.recordId);
+      form.set("recordTitle", photo.recordTitle || "");
+      form.set("fileName", photo.fileName);
+      form.set("mimeType", photo.mimeType);
+      form.set("base64", photo.base64);
+
+      const response = await fetch(url, {
+        method: "POST",
+        body: form
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.error || "Upload failed");
+      return result;
+    }
+
+    async function openPhotoGallery(recordId, recordTitle) {
+      const url = configuredCloudUrl();
+      if (!url) {
+        showToast(t("photoCloudRequired"));
+        return;
+      }
+
+      state.activePhotoRecordId = recordId;
+      state.activePhotoRecordTitle = recordTitle || t("untitled");
+      state.activePhotos = [];
+      document.getElementById("photoModalTitle").textContent = `${t("photoGallery")} · ${state.activePhotoRecordTitle}`;
+      photoStatus.textContent = t("photoUploading");
+      photoGrid.innerHTML = "";
+      photoModal.classList.add("show");
+      document.body.style.overflow = "hidden";
+
+      try {
+        const photos = await requestPhotoList(recordId, true);
+        state.activePhotos = photos;
+        renderPhotoGallery();
+      } catch (error) {
+        photoStatus.textContent = `${t("photoLoadFailed")}: ${error.message}`;
+        photoGrid.innerHTML = "";
+      }
+    }
+
+    function renderPhotoGallery() {
+      const count = state.activePhotos.length;
+      photoStatus.textContent = `${count} / 5 · ${t("photoLimit")}`;
+      document.getElementById("photoModalAdd").disabled = count >= 5;
+
+      if (!count) {
+        photoGrid.innerHTML = `<div class="empty" style="grid-column:1/-1">${escapeHtml(t("photoEmpty"))}</div>`;
+        return;
+      }
+
+      photoGrid.innerHTML = state.activePhotos.map((photo) => `
+        <article class="photo-card">
+          <img src="${photo.dataUrl}" alt="${escapeHtml(photo.fileName || "photo")}" data-action="preview-photo" data-id="${photo.fileId}">
+          <div class="photo-card-info">
+            <div class="photo-card-name">${escapeHtml(photo.fileName || "photo")}</div>
+            <div>${escapeHtml(photo.createdAt || "")}</div>
+            <button class="small danger" type="button" data-action="delete-photo" data-id="${photo.fileId}">${escapeHtml(t("deletePhoto"))}</button>
+          </div>
+        </article>
+      `).join("");
+
+      photoGrid.querySelectorAll("[data-action='preview-photo']").forEach((image) => {
+        image.addEventListener("click", () => {
+          const photo = state.activePhotos.find((item) => item.fileId === image.dataset.id);
+          if (photo) openPhotoPreview(photo.dataUrl);
+        });
+      });
+
+      photoGrid.querySelectorAll("[data-action='delete-photo']").forEach((button) => {
+        button.addEventListener("click", () => deleteDrivePhoto(button.dataset.id));
+      });
+    }
+
+    async function deleteDrivePhoto(fileId) {
+      if (!confirm(t("photoDeleteConfirm"))) return;
+      const url = configuredCloudUrl();
+      if (!url) return;
+
+      try {
+        const form = new URLSearchParams();
+        form.set("action", "deletePhoto");
+        form.set("fileId", fileId);
+        const response = await fetch(url, { method: "POST", body: form });
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.error || "Delete failed");
+        state.activePhotos = state.activePhotos.filter((item) => item.fileId !== fileId);
+        renderPhotoGallery();
+        showToast(t("photoDeleted"));
+      } catch (error) {
+        showToast(`${t("photoUploadFailed")}: ${error.message}`);
+      }
+    }
+
+    function requestPhotoList(recordId, includeData) {
+      const url = configuredCloudUrl();
+      if (!url) return Promise.reject(new Error(t("photoCloudRequired")));
+
+      return new Promise((resolve, reject) => {
+        const callbackName = `photoCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Photo request timeout"));
+        }, 30000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        window[callbackName] = (result) => {
+          cleanup();
+          if (!result || !result.ok) {
+            reject(new Error((result && result.error) || "Photo load failed"));
+            return;
+          }
+          resolve(Array.isArray(result.photos) ? result.photos : []);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Photo request failed"));
+        };
+
+        let requestUrl = addQueryParam(url, "action", "listPhotos");
+        requestUrl = addQueryParam(requestUrl, "recordId", recordId);
+        requestUrl = addQueryParam(requestUrl, "includeData", includeData ? "1" : "0");
+        requestUrl = addQueryParam(requestUrl, "callback", callbackName);
+        script.src = requestUrl;
+        document.body.appendChild(script);
+      });
+    }
+
+    function openPhotoPreview(dataUrl) {
+      photoPreviewImage.src = dataUrl;
+      photoPreview.classList.add("show");
+    }
+
+    function closePhotoPreview() {
+      photoPreview.classList.remove("show");
+      photoPreviewImage.src = "";
+    }
+
+    function closePhotoModal() {
+      photoModal.classList.remove("show");
+      if (!compareModal.classList.contains("show")) document.body.style.overflow = "";
+    }
+
+    async function removeRecordPhotosFromCloud(recordId) {
+      const url = configuredCloudUrl();
+      if (!url) return;
+      try {
+        const form = new URLSearchParams();
+        form.set("action", "deleteRecordPhotos");
+        form.set("recordId", recordId);
+        await fetch(url, { method: "POST", body: form });
+      } catch (_) {
+        // Record deletion must still work if photo cleanup is unavailable.
+      }
     }
 
     function toggleCompareSelection(type, id, checked) {
