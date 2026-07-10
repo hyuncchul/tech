@@ -1372,6 +1372,7 @@
 
 
   <input id="photoInput" type="file" accept="image/*" capture="environment" hidden>
+  <iframe id="photoUploadFrame" name="photoUploadFrame" class="hidden" title="Photo upload target"></iframe>
 
   <div class="photo-modal" id="photoModal" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
     <div class="photo-dialog">
@@ -1637,6 +1638,7 @@
     const photoStatus = document.getElementById("photoStatus");
     const photoPreview = document.getElementById("photoPreview");
     const photoPreviewImage = document.getElementById("photoPreviewImage");
+    const photoUploadFrame = document.getElementById("photoUploadFrame");
     const pendingPhotoPanel = document.getElementById("pendingPhotoPanel");
     const pendingPhotoPreview = document.getElementById("pendingPhotoPreview");
     const pendingPhotoName = document.getElementById("pendingPhotoName");
@@ -2155,7 +2157,7 @@
       try {
         await uploadPhotoToDrive(state.pendingPhoto);
         const confirmed = await waitForPhotoCount(state.activePhotoRecordId, beforeCount + 1);
-        if (!confirmed) throw new Error("Upload confirmation timeout");
+        if (!confirmed) throw new Error("Google Drive 저장 확인 시간 초과. Apps Script 배포 버전과 권한을 확인해 주세요.");
 
         clearPendingPhoto();
         await openPhotoGallery(state.activePhotoRecordId, state.activePhotoRecordTitle);
@@ -2182,8 +2184,8 @@
     }
 
     async function waitForPhotoCount(recordId, expectedCount) {
-      for (let attempt = 0; attempt < 10; attempt += 1) {
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+      for (let attempt = 0; attempt < 30; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         try {
           const photos = await requestPhotoList(recordId, false);
           if (photos.length >= expectedCount) return true;
@@ -2238,21 +2240,50 @@
       const url = configuredCloudUrl();
       if (!url) throw new Error(t("photoCloudRequired"));
 
-      const form = new URLSearchParams();
-      form.set("action", "uploadPhoto");
-      form.set("recordId", photo.recordId);
-      form.set("recordTitle", photo.recordTitle || "");
-      form.set("fileName", photo.fileName);
-      form.set("mimeType", photo.mimeType);
-      form.set("base64", photo.base64);
+      return new Promise((resolve, reject) => {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = url;
+        form.target = "photoUploadFrame";
+        form.style.display = "none";
 
-      await fetch(url, {
-        method: "POST",
-        mode: "no-cors",
-        body: form
+        const fields = {
+          action: "uploadPhoto",
+          recordId: photo.recordId,
+          recordTitle: photo.recordTitle || "",
+          fileName: photo.fileName,
+          mimeType: photo.mimeType,
+          base64: photo.base64
+        };
+
+        Object.entries(fields).forEach(([name, value]) => {
+          const input = document.createElement("textarea");
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        });
+
+        let finished = false;
+        const timeout = setTimeout(() => {
+          if (finished) return;
+          finished = true;
+          form.remove();
+          reject(new Error("Upload request timeout"));
+        }, 90000);
+
+        const onLoad = () => {
+          if (finished) return;
+          finished = true;
+          clearTimeout(timeout);
+          photoUploadFrame.removeEventListener("load", onLoad);
+          form.remove();
+          resolve({ ok: true });
+        };
+
+        photoUploadFrame.addEventListener("load", onLoad, { once: true });
+        document.body.appendChild(form);
+        form.submit();
       });
-
-      return { ok: true };
     }
 
     async function openPhotoGallery(recordId, recordTitle) {
