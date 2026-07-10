@@ -2075,7 +2075,7 @@
       return ((input && input.value) || localStorage.getItem(CLOUD_URL_KEY) || "").trim();
     }
 
-    async function startPhotoAdd(recordId, recordTitle) {
+    function startPhotoAdd(recordId, recordTitle) {
       const url = configuredCloudUrl();
       if (!url) {
         showToast(t("photoCloudRequired"));
@@ -2084,28 +2084,20 @@
 
       state.activePhotoRecordId = recordId;
       state.activePhotoRecordTitle = recordTitle || t("untitled");
+      photoInput.value = "";
 
-      try {
-        const photos = await requestPhotoList(recordId, false);
-        state.activePhotos = photos;
-        if (photos.length >= 5) {
-          showToast(t("photoTooMany"));
-          await openPhotoGallery(recordId, recordTitle);
-          return;
-        }
-        photoInput.value = "";
-        photoInput.click();
-      } catch (error) {
-        showToast(`${t("photoLoadFailed")}: ${error.message}`);
-      }
+      // iPhone/iPad requires the camera/file picker to open directly
+      // inside the original button tap event. Do not await anything here.
+      photoInput.click();
     }
 
-    async function choosePhotosForActiveRecord() {
+    function choosePhotosForActiveRecord() {
       if (!state.activePhotoRecordId) return;
       if (state.activePhotos.length >= 5) {
         showToast(t("photoTooMany"));
         return;
       }
+
       photoInput.value = "";
       photoInput.click();
     }
@@ -2113,17 +2105,26 @@
     async function handlePhotoSelection(event) {
       const file = Array.from(event.target.files || []).find((item) => item.type.startsWith("image/"));
       event.target.value = "";
+
       if (!file || !state.activePhotoRecordId) return;
 
-      if (state.activePhotos.length >= 5) {
-        showToast(t("photoTooMany"));
-        return;
-      }
+      photoModal.classList.add("show");
+      document.body.style.overflow = "hidden";
+      photoStatus.textContent = t("photoUploading");
 
       try {
-        photoStatus.textContent = t("photoUploading");
+        const currentPhotos = await requestPhotoList(state.activePhotoRecordId, false);
+        state.activePhotos = currentPhotos;
+
+        if (currentPhotos.length >= 5) {
+          photoStatus.textContent = t("photoTooMany");
+          renderPhotoGallery();
+          return;
+        }
+
         const compressed = await compressPhoto(file);
         state.pendingPhoto = {
+          uploadId: createUploadId(),
           recordId: state.activePhotoRecordId,
           recordTitle: state.activePhotoRecordTitle,
           fileName: buildPhotoFileName(file.name, 0),
@@ -2131,6 +2132,7 @@
           base64: compressed.base64,
           dataUrl: compressed.dataUrl
         };
+
         pendingPhotoPreview.src = compressed.dataUrl;
         pendingPhotoName.textContent = state.pendingPhoto.fileName;
         pendingPhotoPanel.classList.remove("hidden");
@@ -2139,25 +2141,33 @@
         document.getElementById("photoModalAdd").classList.add("hidden");
         photoGrid.classList.add("hidden");
         photoStatus.textContent = t("photoReady");
-        photoModal.classList.add("show");
-        document.body.style.overflow = "hidden";
       } catch (error) {
-        showToast(`${t("photoUploadFailed")}: ${error.message}`);
+        photoStatus.textContent = `${t("photoLoadFailed")}: ${error.message}`;
+        showToast(`${t("photoLoadFailed")}: ${error.message}`);
       }
+    }
+
+    function createUploadId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `upload_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     }
 
     async function savePendingPhoto() {
       if (!state.pendingPhoto) return;
 
-      const beforeCount = state.activePhotos.length;
       savePendingPhotoButton.disabled = true;
       cancelPendingPhotoButton.disabled = true;
       photoStatus.textContent = t("photoUploading");
 
       try {
         await uploadPhotoToDrive(state.pendingPhoto);
-        const confirmed = await waitForPhotoCount(state.activePhotoRecordId, beforeCount + 1);
-        if (!confirmed) throw new Error("Google Drive 저장 확인 시간 초과. Apps Script 배포 버전과 권한을 확인해 주세요.");
+        const uploadResult = await waitForUploadResult(state.pendingPhoto.uploadId);
+
+        if (!uploadResult || uploadResult.status !== "success") {
+          throw new Error((uploadResult && uploadResult.error) || "Upload failed");
+        }
 
         clearPendingPhoto();
         await openPhotoGallery(state.activePhotoRecordId, state.activePhotoRecordTitle);
@@ -2208,7 +2218,7 @@
           const image = new Image();
           image.onerror = () => reject(new Error("Image decode failed"));
           image.onload = () => {
-            const maxSide = 1280;
+            const maxSide = 1024;
             let width = image.naturalWidth;
             let height = image.naturalHeight;
             const scale = Math.min(1, maxSide / Math.max(width, height));
@@ -2223,7 +2233,7 @@
             context.fillRect(0, 0, width, height);
             context.drawImage(image, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.68);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.60);
             resolve({
               mimeType: "image/jpeg",
               base64: dataUrl.split(",")[1],
@@ -2236,19 +2246,21 @@
       });
     }
 
-    async function uploadPhotoToDrive(photo) {
+    function uploadPhotoToDrive(photo) {
       const url = configuredCloudUrl();
-      if (!url) throw new Error(t("photoCloudRequired"));
+      if (!url) return Promise.reject(new Error(t("photoCloudRequired")));
 
       return new Promise((resolve, reject) => {
         const form = document.createElement("form");
         form.method = "POST";
         form.action = url;
         form.target = "photoUploadFrame";
+        form.enctype = "application/x-www-form-urlencoded";
         form.style.display = "none";
 
         const fields = {
           action: "uploadPhoto",
+          uploadId: photo.uploadId,
           recordId: photo.recordId,
           recordTitle: photo.recordTitle || "",
           fileName: photo.fileName,
@@ -2263,26 +2275,74 @@
           form.appendChild(input);
         });
 
-        let finished = false;
-        const timeout = setTimeout(() => {
-          if (finished) return;
-          finished = true;
-          form.remove();
-          reject(new Error("Upload request timeout"));
-        }, 90000);
+        document.body.appendChild(form);
 
-        const onLoad = () => {
-          if (finished) return;
-          finished = true;
-          clearTimeout(timeout);
-          photoUploadFrame.removeEventListener("load", onLoad);
-          form.remove();
+        try {
+          form.submit();
+          window.setTimeout(() => form.remove(), 3000);
           resolve({ ok: true });
+        } catch (error) {
+          form.remove();
+          reject(error);
+        }
+      });
+    }
+
+    async function waitForUploadResult(uploadId) {
+      for (let attempt = 0; attempt < 45; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        try {
+          const result = await requestUploadStatus(uploadId);
+          if (result && result.status === "success") return result;
+          if (result && result.status === "error") return result;
+        } catch (_) {}
+      }
+
+      return {
+        status: "error",
+        error: "Google Drive 저장 확인 시간 초과. Apps Script가 최신 버전으로 배포되었는지 확인해 주세요."
+      };
+    }
+
+    function requestUploadStatus(uploadId) {
+      const url = configuredCloudUrl();
+      if (!url) return Promise.reject(new Error(t("photoCloudRequired")));
+
+      return new Promise((resolve, reject) => {
+        const callbackName = `uploadStatus_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Upload status timeout"));
+        }, 15000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        window[callbackName] = (result) => {
+          cleanup();
+          if (!result || !result.ok) {
+            reject(new Error((result && result.error) || "Upload status failed"));
+            return;
+          }
+          resolve(result);
         };
 
-        photoUploadFrame.addEventListener("load", onLoad, { once: true });
-        document.body.appendChild(form);
-        form.submit();
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Upload status request failed"));
+        };
+
+        let requestUrl = addQueryParam(url, "action", "uploadStatus");
+        requestUrl = addQueryParam(requestUrl, "uploadId", uploadId);
+        requestUrl = addQueryParam(requestUrl, "callback", callbackName);
+        requestUrl = addQueryParam(requestUrl, "_", Date.now());
+        requestUrl = addQueryParam(requestUrl, "_", Date.now());
+        script.src = requestUrl;
+        document.body.appendChild(script);
       });
     }
 
