@@ -2162,6 +2162,11 @@
       photoStatus.textContent = t("photoUploading");
 
       try {
+        const health = await requestPhotoServerHealth();
+        if (!health || !health.ok || !health.photoApi) {
+          throw new Error("Google Apps Script 사진 서버에 연결할 수 없습니다. 웹 앱 배포 권한을 확인해 주세요.");
+        }
+
         await uploadPhotoToDrive(state.pendingPhoto);
         const uploadResult = await waitForUploadResult(state.pendingPhoto.uploadId);
 
@@ -2180,6 +2185,42 @@
         savePendingPhotoButton.disabled = false;
         cancelPendingPhotoButton.disabled = false;
       }
+    }
+
+    function requestPhotoServerHealth() {
+      const url = configuredCloudUrl();
+      if (!url) return Promise.reject(new Error(t("photoCloudRequired")));
+
+      return new Promise((resolve, reject) => {
+        const callbackName = `health_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Photo server health check timeout"));
+        }, 15000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        window[callbackName] = (result) => {
+          cleanup();
+          resolve(result);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Photo server health check failed"));
+        };
+
+        let requestUrl = addQueryParam(url, "action", "health");
+        requestUrl = addQueryParam(requestUrl, "callback", callbackName);
+        requestUrl = addQueryParam(requestUrl, "_", Date.now());
+        script.src = requestUrl;
+        document.body.appendChild(script);
+      });
     }
 
     function clearPendingPhoto() {
@@ -2218,7 +2259,7 @@
           const image = new Image();
           image.onerror = () => reject(new Error("Image decode failed"));
           image.onload = () => {
-            const maxSide = 1024;
+            const maxSide = 800;
             let width = image.naturalWidth;
             let height = image.naturalHeight;
             const scale = Math.min(1, maxSide / Math.max(width, height));
@@ -2233,7 +2274,7 @@
             context.fillRect(0, 0, width, height);
             context.drawImage(image, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.60);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.50);
             resolve({
               mimeType: "image/jpeg",
               base64: dataUrl.split(",")[1],
@@ -2289,8 +2330,8 @@
     }
 
     async function waitForUploadResult(uploadId) {
-      for (let attempt = 0; attempt < 45; attempt += 1) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         try {
           const result = await requestUploadStatus(uploadId);
           if (result && result.status === "success") return result;
