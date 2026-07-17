@@ -1576,6 +1576,7 @@
       parts: loadParts(),
       editingPartNumber: null,
       editingId: null,
+      editingInspectionId: null,
       selectedRecordIds: [],
       selectedInspectionIds: [],
       activePhotoRecordId: "",
@@ -1865,15 +1866,25 @@
         return;
       }
 
-      state.inspections.unshift({
-        ...inspection,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString()
-      });
+      const now = new Date().toISOString();
+      if (state.editingInspectionId) {
+        const index = state.inspections.findIndex((item) => item.id === state.editingInspectionId);
+        if (index >= 0) {
+          state.inspections[index] = { ...state.inspections[index], ...inspection, updatedAt: now };
+          showToast(t("updated"));
+        }
+      } else {
+        state.inspections.unshift({
+          ...inspection,
+          id: crypto.randomUUID(),
+          createdAt: now,
+          updatedAt: now
+        });
+        showToast(t("inspectionSaved"));
+      }
       persistInspections();
       resetInspectionForm();
       renderInspections();
-      showToast(t("inspectionSaved"));
       autoSaveCloudIfConfigured();
     }
 
@@ -1889,6 +1900,25 @@
     function resetInspectionForm() {
       inspectionForm.reset();
       inspectionForm.elements.date.value = localDateTimeValue();
+      state.editingInspectionId = null;
+      document.getElementById("saveInspection").textContent = t("save");
+    }
+
+    function fillInspectionForm(inspection) {
+      Array.from(inspectionForm.elements).forEach((element) => {
+        if (!element.name) return;
+        element.value = element.name === "date" ? normalizeDateTimeInput(inspection[element.name]) : (inspection[element.name] || "");
+      });
+    }
+
+    function editInspection(id) {
+      const inspection = state.inspections.find((item) => item.id === id);
+      if (!inspection) return;
+      fillInspectionForm(inspection);
+      state.editingInspectionId = id;
+      document.getElementById("saveInspection").textContent = t("updateSave");
+      showView("inspection");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function renderInspections() {
@@ -1923,6 +1953,7 @@
           <div class="record-actions">
             <label class="compare-check"><input type="checkbox" data-action="select-inspection" data-id="${item.id}" ${state.selectedInspectionIds.includes(item.id) ? "checked" : ""}> ${escapeHtml(t("selectForCompare"))}</label>
             <button class="small" type="button" data-action="toggle">${escapeHtml(t("view"))}</button>
+            <button class="small" type="button" data-action="edit-inspection" data-id="${item.id}">${escapeHtml(t("edit"))}</button>
             <button class="small danger" type="button" data-action="delete-inspection" data-id="${item.id}">${escapeHtml(t("delete"))}</button>
           </div>
           <div class="detail">${inspectionDetailHtml(item)}</div>
@@ -1934,6 +1965,9 @@
       });
       area.querySelectorAll("[data-action='delete-inspection']").forEach((button) => {
         button.addEventListener("click", () => deleteInspection(button.dataset.id));
+      });
+      area.querySelectorAll("[data-action='edit-inspection']").forEach((button) => {
+        button.addEventListener("click", () => editInspection(button.dataset.id));
       });
       area.querySelectorAll("[data-action='select-inspection']").forEach((checkbox) => {
         checkbox.addEventListener("change", () => toggleCompareSelection("inspection", checkbox.dataset.id, checkbox.checked));
@@ -1982,6 +2016,7 @@
       if (!confirm(t("deleteConfirm"))) return;
       state.inspections = state.inspections.filter((item) => item.id !== id);
       state.selectedInspectionIds = state.selectedInspectionIds.filter((item) => item !== id);
+      if (state.editingInspectionId === id) resetInspectionForm();
       persistInspections();
       renderInspections();
       showToast(t("deleted"));
@@ -3032,6 +3067,7 @@
         document.getElementById("saveRecord").textContent = t("save");
         document.getElementById("editBadge").textContent = "";
       }
+      document.getElementById("saveInspection").textContent = state.editingInspectionId ? t("updateSave") : t("save");
     }
 
     function translateStaticText() {
