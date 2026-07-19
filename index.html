@@ -466,9 +466,39 @@
       margin-bottom: 8px;
     }
 
+    .date-range {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(130px, 1fr));
+      gap: 6px;
+    }
+
     .records {
       display: grid;
       gap: 10px;
+    }
+
+    #view-records .records {
+      grid-template-columns: 1fr;
+    }
+
+    #view-records .record-card {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.9fr) minmax(320px, 1.4fr);
+      align-items: stretch;
+    }
+
+    #view-records .record-head {
+      border-bottom: 0;
+      border-right: 1px solid var(--line);
+    }
+
+    #view-records .record-actions {
+      align-content: center;
+      align-items: center;
+    }
+
+    #view-records .record-card .detail {
+      grid-column: 1 / -1;
     }
 
     .part-editor {
@@ -897,12 +927,16 @@
       }
 
       .searchbar {
-        grid-template-columns: minmax(260px, 1fr) 180px;
+        grid-template-columns: minmax(150px, 0.65fr) minmax(300px, 1fr);
         align-items: end;
       }
 
       .records {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #view-records .records {
+        grid-template-columns: 1fr;
       }
 
       .record-card.open {
@@ -911,6 +945,10 @@
 
       .detail-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #view-records .record-card {
+        grid-template-columns: minmax(220px, 0.75fr) minmax(420px, 1.5fr);
       }
 
       .action-bar {
@@ -947,6 +985,17 @@
 
       td input {
         min-height: 28px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      #view-records .record-card {
+        grid-template-columns: 1fr;
+      }
+
+      #view-records .record-head {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
       }
     }
 
@@ -1225,8 +1274,11 @@
             <input id="searchText" data-i18n-placeholder="searchPlaceholder" placeholder="Part Number, 품번, 기계, 금형번호, 기술원, 비고">
           </div>
           <div class="field">
-            <label for="filterDate" data-i18n="filterDate">날짜</label>
-            <input id="filterDate" type="date">
+            <label for="filterDateFrom" data-i18n="filterDate">날짜</label>
+            <div class="date-range">
+              <input id="filterDateFrom" type="date" aria-label="Start date">
+              <input id="filterDateTo" type="date" aria-label="End date">
+            </div>
           </div>
         </div>
         <div class="compare-tools">
@@ -1352,9 +1404,18 @@
         <section class="section wide">
           <div class="section-title" data-i18n="inspectionRecords">점검표 조회</div>
           <div class="section-body">
-            <div class="field">
-              <label for="inspectionSearch" data-i18n="search">검색</label>
-              <input id="inspectionSearch" data-i18n-placeholder="inspectionSearchPlaceholder" placeholder="날짜, Part No., Description, 금형, 기계, 기술자 번호">
+            <div class="searchbar">
+              <div class="field">
+                <label for="inspectionSearch" data-i18n="search">검색</label>
+                <input id="inspectionSearch" data-i18n-placeholder="inspectionSearchPlaceholder" placeholder="날짜, Part No., Description, 금형, 기계, 기술자 번호">
+              </div>
+              <div class="field">
+                <label for="inspectionDateFrom" data-i18n="filterDate">날짜</label>
+                <div class="date-range">
+                  <input id="inspectionDateFrom" type="date" aria-label="Inspection start date">
+                  <input id="inspectionDateTo" type="date" aria-label="Inspection end date">
+                </div>
+              </div>
             </div>
             <div class="compare-tools" id="inspectionCompareTools">
               <strong data-i18n="inspectionCompareGuide">비교할 점검표 2개를 선택하세요.</strong>
@@ -1699,7 +1760,8 @@
     document.getElementById("printRecords").addEventListener("click", () => window.print());
     document.getElementById("deleteAll").addEventListener("click", deleteAllRecords);
     document.getElementById("searchText").addEventListener("input", renderRecords);
-    document.getElementById("filterDate").addEventListener("input", renderRecords);
+    document.getElementById("filterDateFrom").addEventListener("input", renderRecords);
+    document.getElementById("filterDateTo").addEventListener("input", renderRecords);
     document.getElementById("exportCsv").addEventListener("click", exportCsv);
     document.getElementById("exportJson").addEventListener("click", exportJson);
     document.getElementById("importJsonButton").addEventListener("click", () => document.getElementById("importJson").click());
@@ -1723,6 +1785,8 @@
     document.getElementById("clearInspection").addEventListener("click", resetInspectionForm);
     document.getElementById("exportInspectionExcel").addEventListener("click", exportInspectionExcel);
     document.getElementById("inspectionSearch").addEventListener("input", renderInspections);
+    document.getElementById("inspectionDateFrom").addEventListener("input", renderInspections);
+    document.getElementById("inspectionDateTo").addEventListener("input", renderInspections);
     document.getElementById("compareRecords").addEventListener("click", compareSelectedRecords);
     document.getElementById("clearRecordCompare").addEventListener("click", () => clearCompareSelection("record"));
     document.getElementById("compareInspections").addEventListener("click", compareSelectedInspections);
@@ -1953,6 +2017,8 @@
     function renderInspections() {
       const area = document.getElementById("inspectionRecordsArea");
       const query = document.getElementById("inspectionSearch").value.trim().toLowerCase();
+      const dateFrom = document.getElementById("inspectionDateFrom").value;
+      const dateTo = document.getElementById("inspectionDateTo").value;
       const rows = state.inspections.filter((item) => {
         const searchSource = [
           item.date,
@@ -1964,7 +2030,9 @@
           item.confirm,
           item.technicianNo
         ].join(" ").toLowerCase();
-        return !query || searchSource.includes(query);
+        const itemDate = String(item.date || "").slice(0, 10);
+        const inDateRange = (!dateFrom || itemDate >= dateFrom) && (!dateTo || itemDate <= dateTo);
+        return (!query || searchSource.includes(query)) && inDateRange;
       });
 
       if (!rows.length) {
@@ -2060,10 +2128,13 @@
     function renderRecords() {
       const area = document.getElementById("recordsArea");
       const query = document.getElementById("searchText").value.trim().toLowerCase();
-      const date = document.getElementById("filterDate").value;
+      const dateFrom = document.getElementById("filterDateFrom").value;
+      const dateTo = document.getElementById("filterDateTo").value;
       const rows = state.records.filter((record) => {
         const searchSource = [record.partNumber, record.partNo, record.machine, record.moldNo, record.technician, record.notes].join(" ").toLowerCase();
-        return (!query || searchSource.includes(query)) && (!date || String(record.date || "").startsWith(date));
+        const recordDate = String(record.date || "").slice(0, 10);
+        const inDateRange = (!dateFrom || recordDate >= dateFrom) && (!dateTo || recordDate <= dateTo);
+        return (!query || searchSource.includes(query)) && inDateRange;
       });
 
       if (!rows.length) {
@@ -2140,12 +2211,6 @@
     }
 
     function startPhotoAdd(recordId, recordTitle) {
-      const url = configuredCloudUrl();
-      if (!url) {
-        showToast(t("photoCloudRequired"));
-        return;
-      }
-
       state.activePhotoRecordId = recordId;
       state.activePhotoRecordTitle = recordTitle || t("untitled");
       photoInput.value = "";
@@ -2177,15 +2242,6 @@
       photoStatus.textContent = t("photoUploading");
 
       try {
-        const currentPhotos = await requestPhotoList(state.activePhotoRecordId, false);
-        state.activePhotos = currentPhotos;
-
-        if (currentPhotos.length >= 5) {
-          photoStatus.textContent = t("photoTooMany");
-          renderPhotoGallery();
-          return;
-        }
-
         const compressed = await compressPhoto(file);
         state.pendingPhoto = {
           uploadId: createUploadId(),
@@ -2226,20 +2282,9 @@
       photoStatus.textContent = t("photoUploading");
 
       try {
-        const health = await requestPhotoServerHealth();
-        if (!health || !health.ok || !health.photoApi) {
-          throw new Error("Google Apps Script 사진 서버에 연결할 수 없습니다. 웹 앱 배포 권한을 확인해 주세요.");
-        }
-
-        await uploadPhotoToDrive(state.pendingPhoto);
-        const uploadResult = await waitForUploadResult(state.pendingPhoto.uploadId);
-
-        if (!uploadResult || uploadResult.status !== "success") {
-          throw new Error((uploadResult && uploadResult.error) || "Upload failed");
-        }
-
+        downloadDataUrl(state.pendingPhoto.fileName, state.pendingPhoto.dataUrl);
         clearPendingPhoto();
-        await openPhotoGallery(state.activePhotoRecordId, state.activePhotoRecordTitle);
+        closePhotoModal();
         photoStatus.textContent = t("photoSavedContinue");
         showToast(t("photoSavedContinue"));
       } catch (error) {
@@ -2310,9 +2355,19 @@
     }
 
     function buildPhotoFileName(originalName, index) {
-      const clean = String(originalName || "photo.jpg").replace(/[^\w.\-]+/g, "_");
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-      return `${stamp}_${index + 1}_${clean.replace(/\.[^.]+$/, "")}.jpg`;
+      const record = state.records.find((item) => item.id === state.activePhotoRecordId) || {};
+      const date = safeFilePart(String(record.date || localDateTimeValue()).replace("T", "_").replace(/:/g, ""));
+      const machine = safeFilePart(record.machine || "설비번호없음");
+      const part = safeFilePart(record.partNumber || record.partNo || "PartNo없음");
+      return `${date}_${machine}_${part}.jpg`;
+    }
+
+    function safeFilePart(value) {
+      return String(value || "")
+        .trim()
+        .replace(/[\\/:*?"<>|]+/g, "-")
+        .replace(/\s+/g, "_")
+        .slice(0, 80) || "blank";
     }
 
     function compressPhoto(file) {
@@ -3389,6 +3444,15 @@
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
+    }
+
+    function downloadDataUrl(filename, dataUrl) {
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
 
     function dateStamp() {
