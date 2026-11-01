@@ -1068,6 +1068,8 @@
     </header>
 
     <main>
+      <p class="notice" id="cloudSyncStatus" role="status" aria-live="polite"></p>
+      <div class="notice" id="pendingSavesPanel"></div>
       <section class="view active" id="view-input">
         <p class="notice" data-i18n="manualSaveNotice"></p>
         <p class="notice" id="recordsSaveStatus" role="status" aria-live="polite"></p>
@@ -1854,6 +1856,8 @@
       const url = event.target.value.trim() || DEFAULT_CLOUD_URL;
       event.target.value = url;
       localStorage.setItem(CLOUD_URL_KEY, url);
+      lastCloudSync = null;
+      cloudSyncState = "waiting";
     });
     document.getElementById("partNumber").addEventListener("input", handlePartNumberInput);
     document.getElementById("inspectionPartNo").addEventListener("input", handleInspectionPartInput);
@@ -1898,7 +1902,11 @@
     form.addEventListener("submit", (event) => event.preventDefault());
     inspectionForm.addEventListener("submit", (event) => event.preventDefault());
     let cloudLoadInProgress = false;
+    let cloudSyncState = "waiting";
+    let lastCloudSync = null;
+    const DRAFT_KEY = "tech-form-drafts-v1";
     initialize();
+    startDraftProtection();
     startCloudAutoRefresh();
 
     function initialize() {
@@ -1910,7 +1918,9 @@
       renderPartDatalist();
       renderAll();
       renderInspections();
+      restoreDrafts();
       restorePendingForms();
+      renderPendingSaves();
     }
 
     function showView(name) {
@@ -1966,9 +1976,11 @@
           element.value = key === "date" ? normalizeDateTimeInput(record[key]) : (record[key] || "");
         }
       });
+      saveDraft("records");
     }
 
     function resetForm() {
+      clearDraft("records");
       form.reset();
       form.elements.runType.value = "量產";
       form.elements.date.value = localDateTimeValue();
@@ -2024,6 +2036,7 @@
     }
 
     function resetInspectionForm() {
+      clearDraft("inspections");
       inspectionForm.reset();
       inspectionForm.elements.date.value = localDateTimeValue();
       document.getElementById("saveInspection").textContent = t("save");
@@ -2034,6 +2047,7 @@
         if (!element.name) return;
         element.value = element.name === "date" ? normalizeDateTimeInput(inspection[element.name]) : (inspection[element.name] || "");
       });
+      saveDraft("inspections");
     }
 
     function copyInspection(id) {
@@ -2869,7 +2883,7 @@
     }
 
     function restorePendingForms() {
-      const entries = loadPendingSaves().filter((entry) => entry.url === configuredCloudUrl() &&
+      const entries = loadPendingSaves().filter((entry) => !readDrafts()[entry.collection] && entry.url === configuredCloudUrl() &&
         !state[entry.collection].some((row) => row.id === entry.record.id));
       ["records", "inspections"].forEach((collection) => {
         const pending = entries.filter((entry) => entry.collection === collection).pop();
@@ -2927,6 +2941,7 @@
       } finally {
         controls.forEach((control, index) => { control.disabled = disabled[index]; });
         state.saving = false;
+        renderPendingSaves();
       }
     }
 
@@ -2988,8 +3003,94 @@
         receipt.record.id === record.id && stableJson(receipt.record) === stableJson(record));
     }
 
+    function improvementText(key) {
+      const text = {
+        ko: { waiting: "연결 대기", loading: "목록 갱신 중…", success: "연결 정상", failed: "갱신 실패 · 자동 재시도 예정", offline: "오프라인 · 기존 기록을 표시합니다", last: "마지막 갱신", never: "아직 갱신되지 않음", interval: "30초마다 자동 갱신", pending: "저장 확인이 필요한 기록", retry: "저장 확인 / 재시도", draft: "작성 중 입력을 복원했습니다", draftFailed: "임시 저장 실패 · 저장 공간을 확인해 주세요" },
+        "zh-TW": { waiting: "等待連線", loading: "正在更新…", success: "連線正常", failed: "更新失敗 · 將自動重試", offline: "離線 · 顯示既有記錄", last: "最後更新", never: "尚未更新", interval: "每 30 秒自動更新", pending: "待確認儲存記錄", retry: "確認儲存 / 重試", draft: "已還原未完成的輸入", draftFailed: "草稿儲存失敗 · 請檢查儲存空間" },
+        en: { waiting: "Waiting for connection", loading: "Refreshing…", success: "Connected", failed: "Refresh failed · will retry", offline: "Offline · showing existing records", last: "Last updated", never: "Not updated yet", interval: "Auto refresh every 30 seconds", pending: "Records awaiting save confirmation", retry: "Check save / retry", draft: "Unfinished input restored", draftFailed: "Draft save failed · check device storage" }
+      };
+      return (text[state.language] || text.en)[key];
+    }
+
+    function renderCloudSyncStatus() {
+      const element = document.getElementById("cloudSyncStatus");
+      const status = navigator.onLine === false ? "offline" : cloudSyncState;
+      element.textContent = `${improvementText(status)} · ${improvementText("last")}: ${lastCloudSync ? lastCloudSync.toLocaleString(state.language) : improvementText("never")} · ${improvementText("interval")}`;
+    }
+
+    function readDrafts() {
+      try {
+        const drafts = JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}");
+        return drafts && typeof drafts === "object" && !Array.isArray(drafts) ? drafts : {};
+      } catch (_) { return {}; }
+    }
+
+    function saveDraft(collection) {
+      try {
+        const drafts = readDrafts();
+        drafts[collection] = collection === "records" ? readForm() : readInspectionForm();
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+      } catch (_) {
+        document.getElementById(`${collection}SaveStatus`).textContent = improvementText("draftFailed");
+      }
+    }
+
+    function clearDraft(collection) {
+      try {
+        const drafts = readDrafts();
+        delete drafts[collection];
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+      } catch (_) { /* Form controls remain usable when device storage is unavailable. */ }
+    }
+
+    function restoreDrafts() {
+      const drafts = readDrafts();
+      ["records", "inspections"].forEach((collection) => {
+        if (!drafts[collection] || typeof drafts[collection] !== "object") return;
+        if (collection === "records") fillForm(drafts[collection]);
+        else fillInspectionForm(drafts[collection]);
+        document.getElementById(`${collection}SaveStatus`).textContent = improvementText("draft");
+      });
+    }
+
+    function startDraftProtection() {
+      [[form, "records"], [inspectionForm, "inspections"]].forEach(([element, collection]) => {
+        element.addEventListener("input", () => saveDraft(collection));
+        element.addEventListener("change", () => saveDraft(collection));
+      });
+    }
+
+    function renderPendingSaves() {
+      const panel = document.getElementById("pendingSavesPanel");
+      panel.replaceChildren();
+      const pending = loadPendingSaves().filter((entry) => entry.url === configuredCloudUrl() &&
+        !state[entry.collection].some((row) => row.id === entry.record.id));
+      panel.hidden = pending.length === 0;
+      if (!pending.length) return;
+      const heading = document.createElement("p");
+      heading.textContent = `${improvementText("pending")}: ${pending.length}`;
+      panel.appendChild(heading);
+      pending.forEach((entry) => {
+        const button = document.createElement("button");
+        const record = entry.record;
+        button.type = "button";
+        button.disabled = state.saving || navigator.onLine === false;
+        button.textContent = `${improvementText("retry")} · ${entry.collection === "records" ? "INPUT" : "INSPECTION"} · ${record.partNumber || record.partNo || record.machine || record.machineNo || record.id} · ${record.date || record.createdAt || ""}`;
+        button.addEventListener("click", async () => {
+          // Reuse the original values and ID; never reset or replace the current input.
+          if (await saveNewEntry(entry.collection, entry.values)) {
+            renderAll();
+            renderInspections();
+          }
+        });
+        panel.appendChild(button);
+      });
+    }
+
     function startCloudAutoRefresh() {
       const refresh = () => {
+        renderCloudSyncStatus();
+        renderPendingSaves();
         if (document.visibilityState === "hidden" || navigator.onLine === false || state.saving) return;
         void loadCloud({ automatic: true });
       };
@@ -2997,6 +3098,7 @@
       setInterval(refresh, 30000);
       document.addEventListener("visibilitychange", refresh);
       window.addEventListener("online", refresh);
+      window.addEventListener("offline", renderCloudSyncStatus);
       window.addEventListener("focus", refresh);
       document.getElementById("cloudUrl").addEventListener("change", refresh);
     }
@@ -3007,15 +3109,22 @@
       const url = automatic ? configuredCloudUrl() : getCloudUrl();
       if (!url) return;
       cloudLoadInProgress = true;
+      cloudSyncState = "loading";
+      renderCloudSyncStatus();
       try {
         const payload = await requestCloudJson(url);
         // A response from a previous URL or during a save must not change current data.
         if (url !== configuredCloudUrl() || state.saving) return;
         applyCloudData(payload, { silent: automatic });
+        lastCloudSync = new Date();
+        cloudSyncState = "success";
+        renderPendingSaves();
       } catch (error) {
+        cloudSyncState = "failed";
         if (!automatic) showToast(`${t("cloudFailed")}: ${error.message}`);
       } finally {
         cloudLoadInProgress = false;
+        renderCloudSyncStatus();
       }
     }
 
@@ -3138,6 +3247,8 @@
         element.placeholder = t(element.dataset.i18nPlaceholder);
       });
       translateStaticText();
+      renderCloudSyncStatus();
+      renderPendingSaves();
       const staticLabels = STATIC_TEXT[state.language] || STATIC_TEXT.ko;
       document.querySelector("[name='switchPosition']").placeholder = staticLabels["位置"] || "位置";
       document.querySelector("[name='switchTime']").placeholder = staticLabels["時間"] || "時間";
