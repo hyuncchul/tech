@@ -1897,7 +1897,9 @@
 
     form.addEventListener("submit", (event) => event.preventDefault());
     inspectionForm.addEventListener("submit", (event) => event.preventDefault());
+    let cloudLoadInProgress = false;
     initialize();
+    startCloudAutoRefresh();
 
     function initialize() {
       form.elements.date.value = localDateTimeValue();
@@ -2986,37 +2988,58 @@
         receipt.record.id === record.id && stableJson(receipt.record) === stableJson(record));
     }
 
-    async function loadCloud() {
-      const url = getCloudUrl();
+    function startCloudAutoRefresh() {
+      const refresh = () => {
+        if (document.visibilityState === "hidden" || navigator.onLine === false || state.saving) return;
+        void loadCloud({ automatic: true });
+      };
+      refresh();
+      setInterval(refresh, 30000);
+      document.addEventListener("visibilitychange", refresh);
+      window.addEventListener("online", refresh);
+      window.addEventListener("focus", refresh);
+      document.getElementById("cloudUrl").addEventListener("change", refresh);
+    }
+
+    async function loadCloud(options = {}) {
+      const automatic = options.automatic === true;
+      if (cloudLoadInProgress || state.saving) return;
+      const url = automatic ? configuredCloudUrl() : getCloudUrl();
       if (!url) return;
+      cloudLoadInProgress = true;
       try {
-        const response = await fetch(url, { method: "GET" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const payload = await response.json();
-        applyCloudData(payload);
+        const payload = await requestCloudJson(url);
+        // A response from a previous URL or during a save must not change current data.
+        if (url !== configuredCloudUrl() || state.saving) return;
+        applyCloudData(payload, { silent: automatic });
       } catch (error) {
-        try {
-          const payload = await loadCloudJsonp(url);
-          applyCloudData(payload);
-        } catch (jsonpError) {
-          showToast(`${t("cloudFailed")}: ${jsonpError.message}`);
-        }
+        if (!automatic) showToast(`${t("cloudFailed")}: ${error.message}`);
+      } finally {
+        cloudLoadInProgress = false;
       }
     }
 
-    function applyCloudData(payload) {
-      const data = payload.data || payload;
-      if (Array.isArray(data.records)) state.records = mergeSavedRows(data.records, state.records);
-      if (Array.isArray(data.inspections)) state.inspections = mergeSavedRows(data.inspections, state.inspections);
-      if (Array.isArray(data.parts)) state.parts = mergeParts(data.parts);
-      persist();
-      persistInspections();
-      persistParts();
-      renderPartDatalist();
-      renderAll();
-      renderInspections();
-      renderParts();
-      showToast(t("cloudLoaded"));
+    function applyCloudData(payload, { silent = false } = {}) {
+      const data = payload && (payload.data || payload);
+      if (!data || (!Array.isArray(data.records) && !Array.isArray(data.inspections) && !Array.isArray(data.parts))) {
+        throw new Error("Invalid cloud data");
+      }
+      const records = Array.isArray(data.records) ? mergeSavedRows(data.records, state.records) : state.records;
+      const inspections = Array.isArray(data.inspections) ? mergeSavedRows(data.inspections, state.inspections) : state.inspections;
+      const parts = Array.isArray(data.parts) ? mergeParts(data.parts) : state.parts;
+      if (stableJson([records, inspections, parts]) !== stableJson([state.records, state.inspections, state.parts])) {
+        state.records = records;
+        state.inspections = inspections;
+        state.parts = parts;
+        persist();
+        persistInspections();
+        persistParts();
+        renderPartDatalist();
+        renderAll();
+        renderInspections();
+        renderParts();
+      }
+      if (!silent) showToast(t("cloudLoaded"));
     }
 
     function loadCloudJsonp(url) {
@@ -3461,3 +3484,4 @@
   </script>
 </body>
 </html>
+
